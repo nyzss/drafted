@@ -2,15 +2,16 @@ import { useState } from "react";
 
 import { Link } from "react-router";
 import {
+    Anchor,
     Box,
     Button,
     Card,
     Container,
     Flex,
-    Group,
     LoadingOverlay,
     ScrollArea,
     Text,
+    Textarea,
     TextInput,
     Title,
 } from "@mantine/core";
@@ -18,9 +19,12 @@ import { Todo } from "@/types/todos";
 import { pb } from "@/api/pb";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
+import { IconPlus } from "@tabler/icons-react";
+import { modals } from "@mantine/modals";
 
 export default function Home() {
     const [content, setContent] = useState("");
+
     const queryClient = useQueryClient();
 
     const { data: todos, isPending } = useQuery<Todo[]>({
@@ -68,16 +72,34 @@ export default function Home() {
 
     return (
         <Container h={"100vh"}>
-            <Flex direction={"column"} h={"50%"}>
-                <Link to={"/login"}>Login</Link>
-                <h1>hello world</h1>
-                <ScrollArea>
-                    <Flex direction={"column"} gap={"sm"}>
+            <Flex direction={"column"} h={"95%"} gap={"md"} py={"sm"}>
+                <Anchor component={Link} to={"/login"}>
+                    <Text size="xl">Login</Text>
+                </Anchor>
+                <ScrollArea offsetScrollbars scrollbars="y" type="auto">
+                    <Flex direction={"column"} gap={"sm"} pr={"xs"}>
                         {isPending || !todos ? (
                             <LoadingOverlay />
                         ) : (
                             todos.map((todo) => (
-                                <Card key={todo.id} withBorder>
+                                <Card
+                                    key={todo.id}
+                                    withBorder
+                                    style={{ cursor: "pointer" }}
+                                    onClick={() =>
+                                        modals.open({
+                                            title: todo.name,
+                                            children: (
+                                                <Flex>
+                                                    <Textarea
+                                                        label="Edit your todo content"
+                                                        placeholder="Go to the shop"
+                                                    />
+                                                </Flex>
+                                            ),
+                                        })
+                                    }
+                                >
                                     <Title>{todo.name}</Title>
                                     <Text>{todo.content.content}</Text>
                                 </Card>
@@ -87,14 +109,23 @@ export default function Home() {
                 </ScrollArea>
                 <Box mt={"auto"}>
                     <form onSubmit={handleSubmit}>
-                        <Group gap={"sm"}>
+                        <Flex gap={"sm"} align={"flex-end"}>
                             <TextInput
-                                placeholder="Todo Name"
+                                placeholder="Buy milk.."
                                 value={content}
+                                label="What needs to be done?"
                                 onChange={(e) => setContent(e.target.value)}
+                                flex={1}
+                                size="lg"
                             />
-                            <Button type="submit">Add Todo</Button>
-                        </Group>
+                            <Button
+                                type="submit"
+                                size="lg"
+                                leftSection={<IconPlus />}
+                            >
+                                Add Todo
+                            </Button>
+                        </Flex>
                     </form>
                 </Box>
             </Flex>
