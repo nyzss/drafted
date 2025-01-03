@@ -1,38 +1,43 @@
-import React, { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
+import { useState } from "react";
+import { Button } from "./components/ui/button";
+import { Input } from "./components/ui/input";
 
 function App() {
-    const [count, setCount] = useState(0);
+    const [todos, setTodos] = useState<string[]>([]);
+
+    const [content, setContent] = useState("");
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setTodos([...todos, content]);
+        setContent("");
+    };
 
     return (
-        <>
-            <div>
-                <a href="https://vite.dev" target="_blank">
-                    <img src={viteLogo} className="logo" alt="Vite logo" />
-                </a>
-                <a href="https://react.dev" target="_blank">
-                    <img
-                        src={reactLogo}
-                        className="logo react"
-                        alt="React logo"
-                    />
-                </a>
+        <div className="flex justify-center h-screen">
+            <div className="container h-2/3 w-1/3 p-4">
+                <div className="flex flex-col h-full">
+                    <h1>hello world</h1>
+                    <ul>
+                        {todos.map((todo) => (
+                            <li key={todo}>{todo}</li>
+                        ))}
+                    </ul>
+                    {/* <Button className="mt-auto">click on me</Button> */}
+                    <form
+                        className="mt-auto flex gap-4"
+                        onSubmit={handleSubmit}
+                    >
+                        <Input
+                            placeholder="Todo Name"
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
+                        />
+                        <Button>Add Todo</Button>
+                    </form>
+                </div>
             </div>
-            <h1>Vite + React version: {React.version}</h1>
-            <div className="card">
-                <button onClick={() => setCount((count) => count + 1)}>
-                    count is {count}
-                </button>
-                <p>
-                    Edit <code>src/App.tsx</code> and save to test HMR
-                </p>
-            </div>
-            <p className="read-the-docs">
-                Click on the Vite and React logos to learn more
-            </p>
-        </>
+        </div>
     );
 }
 
