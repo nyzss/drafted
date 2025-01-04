@@ -1,11 +1,13 @@
-import { RecordModel } from "pocketbase";
+interface BaseTable {
+    id: string;
+    created_at: string;
+    updated_at: string;
+}
 
-interface Todo extends RecordModel {
+interface Todo extends BaseTable {
     content: {
         content: string;
     };
-    created: string;
     name: string;
-    updated: string;
     user_id: string;
 }

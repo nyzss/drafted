@@ -15,8 +15,8 @@ import {
     TextInput,
     Title,
 } from "@mantine/core";
-import { Todo } from "@/types/todos";
-import { pb } from "@/api/pb";
+// import { Todo } from "@/types/todos";
+import { sb } from "@/api/sb";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import { IconPlus } from "@tabler/icons-react";
@@ -30,36 +30,56 @@ export default function Home() {
     const { data: todos, isPending } = useQuery<Todo[]>({
         queryKey: ["todos"],
         queryFn: async () => {
-            const result: Todo[] = await pb.collection("Todos").getFullList({
-                sort: "-created",
-            });
+            const result: Todo[] | null = (
+                await sb.from("todos").select("*").order("updated_at", {
+                    ascending: false,
+                })
+            ).data;
+            if (!result) {
+                return [];
+            }
             return result;
         },
     });
 
     const mutation = useMutation({
         mutationFn: async (title: string) => {
-            return await pb
-                .collection("Todos")
-                .create({
-                    name: title,
-                    content: {
-                        content: "",
+            const { data, error } = await sb
+                .from("todos")
+                .insert([
+                    {
+                        name: title,
+                        content: {
+                            content: "",
+                        },
+                        user_id: (
+                            await sb.auth.getSession()
+                        ).data.session?.user.id,
                     },
-                    user_id: pb.authStore.record?.id,
-                })
-                .catch((e) => {
-                    notifications.show({
-                        title: "Couldn't create todo",
-                        message: e.message,
-                        color: "red",
-                    });
-                    throw e;
-                });
+                ])
+                .select()
+                .throwOnError();
+
+            if (!data) {
+                throw new Error(error.message);
+            }
+            return data as Todo[];
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
+            queryClient.setQueryData(["todos"], (prev: Todo[]) => [
+                ...data,
+                ...prev,
+            ]);
             queryClient.invalidateQueries({
                 queryKey: ["todos"],
+            });
+        },
+        onError: (e) => {
+            console.error("SUPABASE ERROR", e);
+            notifications.show({
+                title: "Couldn't create todo",
+                message: "check console",
+                color: "red",
             });
         },
     });

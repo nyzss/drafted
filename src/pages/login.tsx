@@ -8,29 +8,36 @@ import {
 import { useForm, zodResolver } from "@mantine/form";
 import { IconAt, IconLock } from "@tabler/icons-react";
 import { z } from "zod";
-import { pb } from "@/api/pb";
+import { sb } from "@/api/sb";
+import { notifications } from "@mantine/notifications";
 
 const loginSchema = z.object({
-    username: z.string().min(2).max(32),
+    email: z.string().min(2).max(32),
     password: z.string().min(4).max(32),
 });
 
 export default function Login() {
     const form = useForm({
         initialValues: {
-            username: "",
+            email: "",
             password: "",
         },
         validate: zodResolver(loginSchema),
     });
 
     const handleSubmit = async (values: z.infer<typeof loginSchema>) => {
-        const result = await pb
-            .collection("users")
-            .authWithPassword(values.username, values.password)
-            .catch((e) => {
-                console.error(e);
+        const result = await sb.auth.signInWithPassword({
+            email: values.email,
+            password: values.password,
+        });
+
+        if (result.error) {
+            notifications.show({
+                title: "Couldn't login",
+                message: result.error.message,
+                color: "red",
             });
+        }
 
         console.log("results", result);
     };
@@ -40,11 +47,11 @@ export default function Login() {
             <form onSubmit={form.onSubmit(handleSubmit)}>
                 <Flex direction={"column"} gap={"md"}>
                     <TextInput
-                        label="Username"
+                        label="Email"
                         placeholder="nyzs"
-                        key={form.key("username")}
+                        key={form.key("email")}
                         leftSection={<IconAt size={18} />}
-                        {...form.getInputProps("username")}
+                        {...form.getInputProps("email")}
                     />
                     <PasswordInput
                         label="Password"
