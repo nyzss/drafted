@@ -3,11 +3,13 @@ import Home from "./pages/home";
 import { MantineProvider } from "@mantine/core";
 import Login from "./pages/login";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Notifications } from "@mantine/notifications";
+import { ModalsProvider } from "@mantine/modals";
 
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
-import { Notifications } from "@mantine/notifications";
-import { ModalsProvider } from "@mantine/modals";
+import "@mantine/tiptap/styles.css";
+import Editor from "./pages/editor";
 
 const client = new QueryClient();
 
@@ -21,6 +23,7 @@ function App() {
                         <Routes>
                             <Route path="/" element={<Home />} />
                             <Route path="login" element={<Login />} />
+                            <Route path="editor" element={<Editor />} />
                         </Routes>
                     </BrowserRouter>
                 </QueryClientProvider>

@@ -93,9 +93,14 @@ export default function Home() {
     return (
         <Container h={"100vh"}>
             <Flex direction={"column"} h={"95%"} gap={"md"} py={"sm"}>
-                <Anchor component={Link} to={"/login"}>
-                    <Text size="xl">Login</Text>
-                </Anchor>
+                <Flex gap={"sm"}>
+                    <Anchor component={Link} to={"/login"}>
+                        <Text size="xl">Login</Text>
+                    </Anchor>
+                    <Anchor component={Link} to={"/editor"}>
+                        <Text size="xl">Editor</Text>
+                    </Anchor>
+                </Flex>
                 <ScrollArea offsetScrollbars scrollbars="y" type="auto">
                     <Flex direction={"column"} gap={"sm"} pr={"xs"}>
                         {isPending || !todos ? (
