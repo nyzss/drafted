@@ -43,10 +43,13 @@ export default function Layout() {
                         {({ isActive }) => (
                             <MantineNavLink
                                 active={isActive}
-                                label={<Text>Home</Text>}
+                                label={
+                                    <Text fz={"md"} fw={"bold"}>
+                                        Home
+                                    </Text>
+                                }
                                 leftSection={<IconHome />}
                                 variant="light"
-                                fw="bold"
                                 component="div"
                             />
                         )}
@@ -61,9 +64,14 @@ export default function Layout() {
                         {({ isActive }) => (
                             <MantineNavLink
                                 active={isActive}
-                                label="Login"
+                                label={
+                                    <Text fz={"md"} fw={"bold"}>
+                                        Login
+                                    </Text>
+                                }
                                 leftSection={<IconLogin />}
                                 variant="light"
+                                fz={"xl"}
                                 fw="bold"
                                 component="div"
                             />
