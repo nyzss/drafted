@@ -11,3 +11,20 @@ interface Todo extends BaseTable {
     name: string;
     user_id: string;
 }
+
+interface Generated {
+    id: string;
+    object: string;
+    created: number;
+    model: string;
+    system_fingerprint: string;
+    choices: {
+        index: number;
+        delta: {
+            content?: string | null;
+            role?: "system" | "user" | "assistant" | "tool";
+        };
+        logprobs: null;
+        finish_reason: string;
+    }[];
+}

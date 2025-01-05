@@ -86,8 +86,8 @@ export default function Home() {
         setContent("");
     };
 
-    const selectTodo = (id: string) => {
-        console.log(id);
+    const selectTodo = (todo: Todo) => {
+        setSelected(todo);
     };
 
     return (
@@ -104,7 +104,7 @@ export default function Home() {
                                         key={todo.id}
                                         withBorder
                                         style={{ cursor: "pointer" }}
-                                        onClick={() => selectTodo(todo.id)}
+                                        onClick={() => selectTodo(todo)}
                                     >
                                         <Title>{todo.name}</Title>
                                         <Text>{todo.content.content}</Text>
