@@ -1,5 +1,6 @@
 import {
     AppShell,
+    Box,
     Burger,
     Flex,
     Group,
@@ -7,7 +8,7 @@ import {
     Text,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { IconHome, IconLogin } from "@tabler/icons-react";
+import { IconEdit, IconHome, IconLogin } from "@tabler/icons-react";
 import { Outlet, NavLink } from "react-router";
 
 export default function Layout() {
@@ -35,7 +36,7 @@ export default function Layout() {
                 </Group>
             </AppShell.Header>
             <AppShell.Navbar p="md">
-                <Flex direction={"column"} gap={"xs"}>
+                <Flex direction={"column"} gap={"xs"} h={"100%"} py={"lg"}>
                     <NavLink
                         to={"/"}
                         style={{ textDecoration: "inherit", color: "inherit" }}
@@ -55,28 +56,48 @@ export default function Layout() {
                         )}
                     </NavLink>
                     <NavLink
-                        to={"/login"}
-                        style={{
-                            textDecoration: "inherit",
-                            color: "inherit",
-                        }}
+                        to={"/editor"}
+                        style={{ textDecoration: "inherit", color: "inherit" }}
                     >
                         {({ isActive }) => (
                             <MantineNavLink
                                 active={isActive}
                                 label={
                                     <Text fz={"md"} fw={"bold"}>
-                                        Login
+                                        Editor
                                     </Text>
                                 }
-                                leftSection={<IconLogin />}
+                                leftSection={<IconEdit />}
                                 variant="light"
-                                fz={"xl"}
-                                fw="bold"
                                 component="div"
                             />
                         )}
                     </NavLink>
+                    <Box mt={"auto"}>
+                        <NavLink
+                            to={"/login"}
+                            style={{
+                                textDecoration: "inherit",
+                                color: "inherit",
+                            }}
+                        >
+                            {({ isActive }) => (
+                                <MantineNavLink
+                                    active={isActive}
+                                    label={
+                                        <Text fz={"md"} fw={"bold"}>
+                                            Login
+                                        </Text>
+                                    }
+                                    leftSection={<IconLogin />}
+                                    variant="light"
+                                    fz={"xl"}
+                                    fw="bold"
+                                    component="div"
+                                />
+                            )}
+                        </NavLink>
+                    </Box>
                 </Flex>
             </AppShell.Navbar>
             <AppShell.Main h={"100vh"}>

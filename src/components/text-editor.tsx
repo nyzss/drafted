@@ -1,58 +1,34 @@
-import { RichTextEditor, Link } from "@mantine/tiptap";
-import { useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
-import TextAlign from "@tiptap/extension-text-align";
-import Superscript from "@tiptap/extension-superscript";
-import SubScript from "@tiptap/extension-subscript";
+import { RichTextEditor } from "@mantine/tiptap";
+import { Editor } from "@tiptap/react";
 
-const content =
-    '<h2 style="text-align: center;">Welcome to startdust</h2><p>hello there</p>';
+// const content =
+//     '<h2 style="text-align: center;">Welcome to startdust</h2><p>hello there</p>';
 
-export default function TextEditor() {
-    const editor = useEditor({
-        extensions: [
-            StarterKit,
-            Underline,
-            Link,
-            Superscript,
-            SubScript,
-            TextAlign.configure({ types: ["heading", "paragraph"] }),
-        ],
-        content,
-    });
-
+export default function TextEditor({ editor }: { editor: Editor | null }) {
     return (
         <RichTextEditor editor={editor} h={"100%"} variant="subtle" fz={"lg"}>
-            <RichTextEditor.Toolbar sticky stickyOffset={20}>
+            <RichTextEditor.Toolbar sticky>
                 <RichTextEditor.ControlsGroup>
                     <RichTextEditor.Bold />
                     <RichTextEditor.Italic />
                     <RichTextEditor.Underline />
                     <RichTextEditor.Strikethrough />
-                    {/* <RichTextEditor.ClearFormatting /> */}
-                    {/* <RichTextEditor.Code /> */}
                 </RichTextEditor.ControlsGroup>
 
                 <RichTextEditor.ControlsGroup>
                     <RichTextEditor.H1 />
                     <RichTextEditor.H2 />
                     <RichTextEditor.H3 />
-                    {/* <RichTextEditor.H4 /> */}
                 </RichTextEditor.ControlsGroup>
 
                 <RichTextEditor.ControlsGroup>
                     <RichTextEditor.Blockquote />
                     <RichTextEditor.Hr />
                     <RichTextEditor.BulletList />
-                    {/* <RichTextEditor.OrderedList /> */}
-                    {/* <RichTextEditor.Subscript /> */}
-                    {/* <RichTextEditor.Superscript /> */}
                 </RichTextEditor.ControlsGroup>
 
                 <RichTextEditor.ControlsGroup>
                     <RichTextEditor.Link />
-                    {/* <RichTextEditor.Unlink /> */}
                 </RichTextEditor.ControlsGroup>
 
                 <RichTextEditor.ControlsGroup>
