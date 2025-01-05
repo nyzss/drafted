@@ -1,8 +1,5 @@
 import { useState } from "react";
-
-import { Link } from "react-router";
 import {
-    Anchor,
     Box,
     Button,
     Card,
@@ -11,19 +8,18 @@ import {
     LoadingOverlay,
     ScrollArea,
     Text,
-    Textarea,
     TextInput,
     Title,
 } from "@mantine/core";
-// import { Todo } from "@/types/todos";
 import { sb } from "@/api/sb";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import { IconPlus } from "@tabler/icons-react";
-import { modals } from "@mantine/modals";
+import TodoDetails from "@/components/todo-details";
 
 export default function Home() {
     const [content, setContent] = useState("");
+    const [selected, setSelected] = useState<Todo | null>(null);
 
     const queryClient = useQueryClient();
 
@@ -90,69 +86,58 @@ export default function Home() {
         setContent("");
     };
 
+    const selectTodo = (id: string) => {
+        console.log(id);
+    };
+
     return (
-        <Container h={"100vh"}>
-            <Flex direction={"column"} h={"95%"} gap={"md"} py={"sm"}>
-                <Flex gap={"sm"}>
-                    <Anchor component={Link} to={"/login"}>
-                        <Text size="xl">Login</Text>
-                    </Anchor>
-                    <Anchor component={Link} to={"/editor"}>
-                        <Text size="xl">Editor</Text>
-                    </Anchor>
-                </Flex>
-                <ScrollArea offsetScrollbars scrollbars="y" type="auto">
-                    <Flex direction={"column"} gap={"sm"} pr={"xs"}>
-                        {isPending || !todos ? (
-                            <LoadingOverlay />
-                        ) : (
-                            todos.map((todo) => (
-                                <Card
-                                    key={todo.id}
-                                    withBorder
-                                    style={{ cursor: "pointer" }}
-                                    onClick={() =>
-                                        modals.open({
-                                            title: todo.name,
-                                            children: (
-                                                <Flex>
-                                                    <Textarea
-                                                        label="Edit your todo content"
-                                                        placeholder="Go to the shop"
-                                                    />
-                                                </Flex>
-                                            ),
-                                        })
-                                    }
-                                >
-                                    <Title>{todo.name}</Title>
-                                    <Text>{todo.content.content}</Text>
-                                </Card>
-                            ))
-                        )}
-                    </Flex>
-                </ScrollArea>
-                <Box mt={"auto"}>
-                    <form onSubmit={handleSubmit}>
-                        <Flex gap={"sm"} align={"flex-end"}>
-                            <TextInput
-                                placeholder="Buy milk.."
-                                value={content}
-                                label="What needs to be done?"
-                                onChange={(e) => setContent(e.target.value)}
-                                flex={1}
-                                size="lg"
-                            />
-                            <Button
-                                type="submit"
-                                size="lg"
-                                leftSection={<IconPlus />}
-                            >
-                                Add Todo
-                            </Button>
+        <Container h={"100%"} size={"xl"}>
+            <Flex direction={"row"} h={"100%"} gap={"md"} py={"md"}>
+                <Flex direction={"column"} h={"100%"} gap={"md"}>
+                    <ScrollArea offsetScrollbars scrollbars="y" type="auto">
+                        <Flex direction={"column"} gap={"sm"} pr={"xs"}>
+                            {isPending || !todos ? (
+                                <LoadingOverlay />
+                            ) : (
+                                todos.map((todo) => (
+                                    <Card
+                                        key={todo.id}
+                                        withBorder
+                                        style={{ cursor: "pointer" }}
+                                        onClick={() => selectTodo(todo.id)}
+                                    >
+                                        <Title>{todo.name}</Title>
+                                        <Text>{todo.content.content}</Text>
+                                    </Card>
+                                ))
+                            )}
                         </Flex>
-                    </form>
-                </Box>
+                    </ScrollArea>
+                    <Box mt={"auto"}>
+                        <form onSubmit={handleSubmit}>
+                            <Flex gap={"sm"} align={"flex-end"}>
+                                <TextInput
+                                    placeholder="Buy milk.."
+                                    value={content}
+                                    label="What needs to be done?"
+                                    onChange={(e) => setContent(e.target.value)}
+                                    flex={1}
+                                    size="lg"
+                                />
+                                <Button
+                                    type="submit"
+                                    size="lg"
+                                    leftSection={<IconPlus />}
+                                >
+                                    Add Todo
+                                </Button>
+                            </Flex>
+                        </form>
+                    </Box>
+                </Flex>
+                <Card withBorder h={"100%"} w={"100%"}>
+                    <TodoDetails todo={selected} />
+                </Card>
             </Flex>
         </Container>
     );
