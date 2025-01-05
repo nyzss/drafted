@@ -106,7 +106,9 @@ export default function Todos() {
                                         style={{ cursor: "pointer" }}
                                         onClick={() => selectTodo(todo)}
                                     >
-                                        <Title>{todo.name}</Title>
+                                        <Text size="lg" fw={"bold"}>
+                                            {todo.name}
+                                        </Text>
                                         <Text>{todo.content.content}</Text>
                                     </Card>
                                 ))
