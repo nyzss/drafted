@@ -15,13 +15,6 @@ import { useEffect, useState } from "react";
 
 import { z } from "zod";
 import TextEditor from "./text-editor";
-import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
-import TextAlign from "@tiptap/extension-text-align";
-import Superscript from "@tiptap/extension-superscript";
-import SubScript from "@tiptap/extension-subscript";
-import { useEditor } from "@tiptap/react";
-import { Link } from "@mantine/tiptap";
 
 const todoSchema = z.object({
     name: z.string().nonempty().max(255),
@@ -30,18 +23,6 @@ const todoSchema = z.object({
 
 export default function TodoDetails({ todo }: { todo: Todo | null }) {
     const [generated, setGenerated] = useState<string>();
-
-    const editor = useEditor({
-        extensions: [
-            StarterKit,
-            Underline,
-            Link,
-            Superscript,
-            SubScript,
-            TextAlign.configure({ types: ["heading", "paragraph"] }),
-        ],
-        content: "",
-    });
 
     const form = useForm<z.infer<typeof todoSchema>>({
         initialValues: {
@@ -61,6 +42,7 @@ export default function TodoDetails({ todo }: { todo: Todo | null }) {
             content: todo?.content.content || "",
         });
         setGenerated("");
+        //TODO: find a better way to handle this
     }, [todo]);
 
     if (!todo) {
@@ -74,11 +56,10 @@ export default function TodoDetails({ todo }: { todo: Todo | null }) {
     }
 
     const handleSubmit = async (values: z.infer<typeof todoSchema>) => {
-        editor?.commands.insertContent("<h1>hello</h1>");
         console.log(values);
     };
 
-    const generate = async (callback: (content: string) => void) => {
+    const generate = async () => {
         setGenerated("");
         const values = form.getValues();
 
@@ -113,8 +94,7 @@ export default function TodoDetails({ todo }: { todo: Todo | null }) {
                         const content = processed?.choices[0].delta?.content;
 
                         if (content) {
-                            callback(content);
-                            // setGenerated((prev) => prev + content);
+                            setGenerated((prev) => prev + content);
                         }
                         // console.log(processed);
                     } catch (error) {
@@ -145,12 +125,7 @@ export default function TodoDetails({ todo }: { todo: Todo | null }) {
                 <Flex gap={"sm"}>
                     <Button type="submit">Update</Button>
                     <Button
-                        onClick={() =>
-                            generate((str) =>
-                                editor?.commands.insertContent(str)
-                            )
-                        }
-                        // onClick={() => generate(setGenerated)}
+                        onClick={generate}
                         flex={1}
                         variant="light"
                         leftSection={<IconSparkles />}
@@ -159,7 +134,7 @@ export default function TodoDetails({ todo }: { todo: Todo | null }) {
                     </Button>
                 </Flex>
                 <ScrollArea h={"100%"} mt={"auto"}>
-                    <TextEditor editor={editor} />
+                    <Text>{generated}</Text>
                 </ScrollArea>
             </Flex>
         </form>

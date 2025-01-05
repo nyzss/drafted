@@ -1,16 +1,14 @@
 import { Route, Routes } from "react-router";
-import Home from "./home";
-import Login from "./login";
-import Editor from "./editor";
 import Layout from "@/components/layout";
+import { routes } from "@/routes";
 
 export default function Router() {
     return (
         <Routes>
             <Route element={<Layout />}>
-                <Route path="/" element={<Home />} />
-                <Route path="login" element={<Login />} />
-                <Route path="editor" element={<Editor />} />
+                {Object.entries(routes).map(([key, { element, path }]) => (
+                    <Route key={key} path={path} element={element} />
+                ))}
             </Route>
         </Routes>
     );

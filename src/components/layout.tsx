@@ -1,3 +1,4 @@
+import { routes } from "@/routes";
 import {
     AppShell,
     Box,
@@ -37,66 +38,68 @@ export default function Layout() {
             </AppShell.Header>
             <AppShell.Navbar p="md">
                 <Flex direction={"column"} gap={"xs"} h={"100%"} py={"lg"}>
-                    <NavLink
-                        to={"/"}
-                        style={{ textDecoration: "inherit", color: "inherit" }}
-                    >
-                        {({ isActive }) => (
-                            <MantineNavLink
-                                active={isActive}
-                                label={
-                                    <Text fz={"md"} fw={"bold"}>
-                                        Home
-                                    </Text>
-                                }
-                                leftSection={<IconHome />}
-                                variant="light"
-                                component="div"
-                            />
-                        )}
-                    </NavLink>
-                    <NavLink
-                        to={"/editor"}
-                        style={{ textDecoration: "inherit", color: "inherit" }}
-                    >
-                        {({ isActive }) => (
-                            <MantineNavLink
-                                active={isActive}
-                                label={
-                                    <Text fz={"md"} fw={"bold"}>
-                                        Editor
-                                    </Text>
-                                }
-                                leftSection={<IconEdit />}
-                                variant="light"
-                                component="div"
-                            />
-                        )}
-                    </NavLink>
+                    {Object.entries(routes)
+                        .filter(([_, route]) => route.position !== "bottom")
+                        .map(([path, route]) => (
+                            <NavLink
+                                to={route.path}
+                                style={{
+                                    textDecoration: "inherit",
+                                    color: "inherit",
+                                }}
+                                key={path}
+                            >
+                                {({ isActive }) => (
+                                    <MantineNavLink
+                                        active={isActive}
+                                        label={
+                                            <Text
+                                                fz={"md"}
+                                                fw={"bold"}
+                                                tt={"capitalize"}
+                                            >
+                                                {path}
+                                            </Text>
+                                        }
+                                        leftSection={route.icon}
+                                        variant="light"
+                                        component="div"
+                                    />
+                                )}
+                            </NavLink>
+                        ))}
+
                     <Box mt={"auto"}>
-                        <NavLink
-                            to={"/login"}
-                            style={{
-                                textDecoration: "inherit",
-                                color: "inherit",
-                            }}
-                        >
-                            {({ isActive }) => (
-                                <MantineNavLink
-                                    active={isActive}
-                                    label={
-                                        <Text fz={"md"} fw={"bold"}>
-                                            Login
-                                        </Text>
-                                    }
-                                    leftSection={<IconLogin />}
-                                    variant="light"
-                                    fz={"xl"}
-                                    fw="bold"
-                                    component="div"
-                                />
-                            )}
-                        </NavLink>
+                        {Object.entries(routes)
+                            .filter(([_, route]) => route.position === "bottom")
+                            .map(([path, route]) => (
+                                <NavLink
+                                    to={route.path}
+                                    style={{
+                                        textDecoration: "inherit",
+                                        color: "inherit",
+                                    }}
+                                    key={path}
+                                >
+                                    {({ isActive }) => (
+                                        <MantineNavLink
+                                            active={isActive}
+                                            label={
+                                                <Text
+                                                    fz={"md"}
+                                                    fw={"bold"}
+                                                    tt={"capitalize"}
+                                                >
+                                                    {path}
+                                                </Text>
+                                            }
+                                            leftSection={route.icon}
+                                            variant="light"
+                                            component="div"
+                                        />
+                                    )}
+                                </NavLink>
+                            ))}
                     </Box>
                 </Flex>
             </AppShell.Navbar>
