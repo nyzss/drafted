@@ -14,7 +14,7 @@ import { IconSparkles } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 
 import { z } from "zod";
-import TextEditor from "./text-editor";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const todoSchema = z.object({
     name: z.string().nonempty().max(255),
@@ -23,6 +23,7 @@ const todoSchema = z.object({
 
 export default function TodoDetails({ todo }: { todo: Todo | null }) {
     const [generated, setGenerated] = useState<string>();
+    const queryClient = useQueryClient();
 
     const form = useForm<z.infer<typeof todoSchema>>({
         initialValues: {
@@ -30,6 +31,38 @@ export default function TodoDetails({ todo }: { todo: Todo | null }) {
             content: todo?.content.content || "",
         },
         validate: zodResolver(todoSchema),
+    });
+
+    const deleteTodo = useMutation({
+        mutationFn: async (id: string) => {
+            const { data, error } = await sb
+                .from("todos")
+                .delete()
+                .eq("id", id)
+                .select();
+            if (error) {
+                throw new Error(error.message);
+            }
+
+            return data;
+        },
+        onSuccess: (_) => {
+            queryClient.invalidateQueries({ queryKey: ["todos"] });
+
+            notifications.show({
+                title: "Succesfully deleted",
+                message: "Todo has been deleted",
+                color: "green",
+            });
+        },
+        onError: (error) => {
+            console.error(error);
+            notifications.show({
+                title: "Couldn't delete todo",
+                message: error.message,
+                color: "red",
+            });
+        },
     });
 
     useEffect(() => {
@@ -58,7 +91,6 @@ export default function TodoDetails({ todo }: { todo: Todo | null }) {
     const handleSubmit = async (values: z.infer<typeof todoSchema>) => {
         console.log(values);
     };
-
     const generate = async () => {
         setGenerated("");
         const values = form.getValues();
@@ -123,7 +155,15 @@ export default function TodoDetails({ todo }: { todo: Todo | null }) {
                 />
 
                 <Flex gap={"sm"}>
-                    <Button type="submit">Update</Button>
+                    <Button type="submit" color="">
+                        Update
+                    </Button>
+                    <Button
+                        color={"red"}
+                        onClick={() => deleteTodo.mutate(todo.id)}
+                    >
+                        Delete
+                    </Button>
                     <Button
                         onClick={generate}
                         flex={1}

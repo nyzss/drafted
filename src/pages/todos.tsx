@@ -9,7 +9,6 @@ import {
     ScrollArea,
     Text,
     TextInput,
-    Title,
 } from "@mantine/core";
 import { sb } from "@/api/sb";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -74,7 +73,7 @@ export default function Todos() {
             console.error("SUPABASE ERROR", e);
             notifications.show({
                 title: "Couldn't create todo",
-                message: "check console",
+                message: e.message,
                 color: "red",
             });
         },

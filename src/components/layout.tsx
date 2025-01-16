@@ -1,16 +1,16 @@
-import { routes } from "@/routes";
 import {
     AppShell,
     Box,
     Burger,
+    Button,
     Flex,
     Group,
     NavLink as MantineNavLink,
     Text,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { IconEdit, IconHome, IconLogin } from "@tabler/icons-react";
-import { Outlet, NavLink } from "react-router";
+import { Outlet, NavLink, Link } from "react-router";
+import { routes } from "./routes";
 
 export default function Layout() {
     const [opened, { toggle }] = useDisclosure();
@@ -38,16 +38,63 @@ export default function Layout() {
             </AppShell.Header>
             <AppShell.Navbar p="md">
                 <Flex direction={"column"} gap={"xs"} h={"100%"} py={"lg"}>
-                    {Object.entries(routes)
-                        .filter(([_, route]) => route.position !== "bottom")
-                        .map(([path, route]) => (
+                    {routes.map((route) => (
+                        <NavLink
+                            to={route.path}
+                            style={{
+                                textDecoration: "inherit",
+                                color: "inherit",
+                            }}
+                            key={route.path}
+                        >
+                            {({ isActive }) => (
+                                <MantineNavLink
+                                    active={isActive}
+                                    label={
+                                        <Text
+                                            fz={"md"}
+                                            fw={"bold"}
+                                            tt={"capitalize"}
+                                        >
+                                            {route.name}
+                                        </Text>
+                                    }
+                                    leftSection={route.icon}
+                                    variant="light"
+                                    component="div"
+                                />
+                            )}
+                        </NavLink>
+                    ))}
+
+                    <Flex gap={"sm"} mt={"auto"} mb={"md"}>
+                        <Button
+                            variant="light"
+                            component={Link}
+                            to={"/login"}
+                            fullWidth
+                        >
+                            Login
+                        </Button>
+                        <Button
+                            variant="filled"
+                            component={Link}
+                            to={"/register"}
+                            fullWidth
+                        >
+                            Register
+                        </Button>
+                    </Flex>
+
+                    {/* <Box mt={"auto"}>
+                        {routes.map((route) => (
                             <NavLink
                                 to={route.path}
                                 style={{
                                     textDecoration: "inherit",
                                     color: "inherit",
                                 }}
-                                key={path}
+                                key={route.path}
                             >
                                 {({ isActive }) => (
                                     <MantineNavLink
@@ -58,7 +105,7 @@ export default function Layout() {
                                                 fw={"bold"}
                                                 tt={"capitalize"}
                                             >
-                                                {path}
+                                                {route.name}
                                             </Text>
                                         }
                                         leftSection={route.icon}
@@ -68,39 +115,7 @@ export default function Layout() {
                                 )}
                             </NavLink>
                         ))}
-
-                    <Box mt={"auto"}>
-                        {Object.entries(routes)
-                            .filter(([_, route]) => route.position === "bottom")
-                            .map(([path, route]) => (
-                                <NavLink
-                                    to={route.path}
-                                    style={{
-                                        textDecoration: "inherit",
-                                        color: "inherit",
-                                    }}
-                                    key={path}
-                                >
-                                    {({ isActive }) => (
-                                        <MantineNavLink
-                                            active={isActive}
-                                            label={
-                                                <Text
-                                                    fz={"md"}
-                                                    fw={"bold"}
-                                                    tt={"capitalize"}
-                                                >
-                                                    {path}
-                                                </Text>
-                                            }
-                                            leftSection={route.icon}
-                                            variant="light"
-                                            component="div"
-                                        />
-                                    )}
-                                </NavLink>
-                            ))}
-                    </Box>
+                    </Box> */}
                 </Flex>
             </AppShell.Navbar>
             <AppShell.Main h={"100vh"}>

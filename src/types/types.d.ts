@@ -1,9 +1,5 @@
-type TRoute = Record<
-    string,
-    {
-        path: string;
-        element: React.ReactNode;
-        icon: React.ReactNode;
-        position?: "top" | "bottom";
-    }
->;
+type TRoute = {
+    path: string;
+    name: string;
+    icon: React.ReactNode;
+};

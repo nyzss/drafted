@@ -1,4 +1,11 @@
-import { Button, createTheme, NavLink, Paper } from "@mantine/core";
+import {
+    Button,
+    createTheme,
+    Input,
+    NavLink,
+    Paper,
+    TextInput,
+} from "@mantine/core";
 
 export const theme = createTheme({
     fontFamily: "Geist, serif",
@@ -12,6 +19,16 @@ export const theme = createTheme({
         Paper: Paper.extend({
             defaultProps: {
                 radius: "xs",
+            },
+        }),
+        Input: Input.extend({
+            defaultProps: {
+                radius: "lg",
+            },
+        }),
+        TextInput: TextInput.extend({
+            defaultProps: {
+                radius: "lg",
             },
         }),
         NavLink: NavLink.extend({
