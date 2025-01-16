@@ -1,5 +1,6 @@
 import {
     AppShell,
+    Avatar,
     Box,
     Burger,
     Button,
@@ -11,9 +12,12 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import { Outlet, NavLink, Link } from "react-router";
 import { routes } from "./routes";
+import { useAuth } from "@/contexts/auth-provider";
 
 export default function Layout() {
     const [opened, { toggle }] = useDisclosure();
+
+    const { session } = useAuth();
 
     return (
         <AppShell
@@ -67,55 +71,33 @@ export default function Layout() {
                         </NavLink>
                     ))}
 
-                    <Flex gap={"sm"} mt={"auto"} mb={"md"}>
-                        <Button
-                            variant="light"
-                            component={Link}
-                            to={"/login"}
-                            fullWidth
-                        >
-                            Login
-                        </Button>
-                        <Button
-                            variant="filled"
-                            component={Link}
-                            to={"/register"}
-                            fullWidth
-                        >
-                            Register
-                        </Button>
-                    </Flex>
-
-                    {/* <Box mt={"auto"}>
-                        {routes.map((route) => (
-                            <NavLink
-                                to={route.path}
-                                style={{
-                                    textDecoration: "inherit",
-                                    color: "inherit",
-                                }}
-                                key={route.path}
-                            >
-                                {({ isActive }) => (
-                                    <MantineNavLink
-                                        active={isActive}
-                                        label={
-                                            <Text
-                                                fz={"md"}
-                                                fw={"bold"}
-                                                tt={"capitalize"}
-                                            >
-                                                {route.name}
-                                            </Text>
-                                        }
-                                        leftSection={route.icon}
-                                        variant="light"
-                                        component="div"
-                                    />
-                                )}
-                            </NavLink>
-                        ))}
-                    </Box> */}
+                    <Box mt={"auto"} mb={"sm"}>
+                        {session ? (
+                            <Flex align={"center"} gap={"sm"}>
+                                <Avatar name={session.user.email} />
+                                <Text c={"gray"}>{session.user.email}</Text>
+                            </Flex>
+                        ) : (
+                            <Flex gap={"sm"}>
+                                <Button
+                                    variant="light"
+                                    component={Link}
+                                    to={"/login"}
+                                    fullWidth
+                                >
+                                    Login
+                                </Button>
+                                <Button
+                                    variant="filled"
+                                    component={Link}
+                                    to={"/register"}
+                                    fullWidth
+                                >
+                                    Register
+                                </Button>
+                            </Flex>
+                        )}
+                    </Box>
                 </Flex>
             </AppShell.Navbar>
             <AppShell.Main h={"100vh"}>
