@@ -12,7 +12,7 @@ import { IconAt, IconLock } from "@tabler/icons-react";
 import { z } from "zod";
 import { sb } from "@/api/sb";
 import { notifications } from "@mantine/notifications";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 const loginSchema = z.object({
     email: z.string().email(),
@@ -20,6 +20,7 @@ const loginSchema = z.object({
 });
 
 export default function Login() {
+    const navigate = useNavigate();
     const form = useForm({
         initialValues: {
             email: "",
@@ -43,6 +44,8 @@ export default function Login() {
                 message: result.error.message,
                 color: "red",
             });
+        } else {
+            navigate("/");
         }
 
         console.log("results", result);
@@ -54,7 +57,7 @@ export default function Login() {
                 <Flex direction={"column"} gap={"md"}>
                     <TextInput
                         label="Email"
-                        placeholder="nyzs"
+                        placeholder="example@drafted.dev"
                         key={form.key("email")}
                         leftSection={<IconAt size={18} />}
                         size="lg"

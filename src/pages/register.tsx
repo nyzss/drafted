@@ -1,15 +1,18 @@
+import { sb } from "@/api/sb";
 import {
+    Anchor,
     Button,
     Container,
     Flex,
     PasswordInput,
+    Text,
     TextInput,
 } from "@mantine/core";
 import { useForm, zodResolver } from "@mantine/form";
-import { IconAt, IconLock, IconPassword } from "@tabler/icons-react";
-import { z } from "zod";
-import { sb } from "@/api/sb";
 import { notifications } from "@mantine/notifications";
+import { IconAt, IconLock, IconPassword } from "@tabler/icons-react";
+import { Link, useNavigate } from "react-router";
+import { z } from "zod";
 
 const registerSchema = z
     .object({
@@ -23,6 +26,7 @@ const registerSchema = z
     );
 
 export default function Register() {
+    const navigate = useNavigate();
     const form = useForm({
         initialValues: {
             email: "",
@@ -47,6 +51,8 @@ export default function Register() {
                 message: result.error.message,
                 color: "red",
             });
+        } else {
+            navigate("/login");
         }
 
         console.log("results", result);
@@ -59,7 +65,7 @@ export default function Register() {
                     <TextInput
                         label="Email"
                         size="lg"
-                        placeholder="nyzs"
+                        placeholder="example@drafted.dev"
                         key={form.key("email")}
                         leftSection={<IconAt size={18} />}
                         {...form.getInputProps("email")}
@@ -91,6 +97,12 @@ export default function Register() {
                     </Button>
                 </Flex>
             </form>
+            <Text>
+                Already have an account?{" "}
+                <Anchor component={Link} to={"/login"}>
+                    Login
+                </Anchor>
+            </Text>
         </Container>
     );
 }
