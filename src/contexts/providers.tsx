@@ -7,18 +7,18 @@ const client = new QueryClient();
 
 export default function Providers({ children }: { children: React.ReactNode }) {
     return (
-        <AuthProvider>
-            <MantineProvider
-                defaultColorScheme="dark"
-                forceColorScheme="dark"
-                theme={theme}
-            >
+        <MantineProvider
+            defaultColorScheme="dark"
+            forceColorScheme="dark"
+            theme={theme}
+        >
+            <AuthProvider>
                 <ModalsProvider>
                     <QueryClientProvider client={client}>
                         {children}
                     </QueryClientProvider>
                 </ModalsProvider>
-            </MantineProvider>
-        </AuthProvider>
+            </AuthProvider>
+        </MantineProvider>
     );
 }

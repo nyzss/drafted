@@ -37,7 +37,7 @@ export default function Layout() {
                         hiddenFrom="sm"
                         size="sm"
                     />
-                    stardust
+                    drafted
                 </Group>
             </AppShell.Header>
             <AppShell.Navbar p="md">
