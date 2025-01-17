@@ -3,6 +3,7 @@ import {
     createTheme,
     Input,
     NavLink,
+    Notification,
     Paper,
     TextInput,
 } from "@mantine/core";
@@ -36,6 +37,12 @@ export const theme = createTheme({
                 root: {
                     borderRadius: "var(--mantine-radius-md)",
                 },
+            },
+        }),
+        Notification: Notification.extend({
+            defaultProps: {
+                radius: "lg",
+                withBorder: true,
             },
         }),
     },
