@@ -59,13 +59,13 @@ export default function Login() {
                         label="Email"
                         placeholder="example@drafted.dev"
                         key={form.key("email")}
-                        leftSection={<IconAt size={18} />}
+                        leftSection={<IconAt />}
                         size="lg"
                         {...form.getInputProps("email")}
                     />
                     <PasswordInput
                         label="Password"
-                        leftSection={<IconLock size={18} />}
+                        leftSection={<IconLock />}
                         placeholder="Enter your password"
                         key={form.key("password")}
                         size="lg"
@@ -77,6 +77,7 @@ export default function Login() {
                             alignSelf: "flex-end",
                         }}
                         size="lg"
+                        loading={form.submitting}
                     >
                         Login
                     </Button>

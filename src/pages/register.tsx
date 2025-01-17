@@ -10,7 +10,7 @@ import {
 } from "@mantine/core";
 import { useForm, zodResolver } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
-import { IconAt, IconLock, IconPassword } from "@tabler/icons-react";
+import { IconAt, IconLock } from "@tabler/icons-react";
 import { Link, useNavigate } from "react-router";
 import { z } from "zod";
 
@@ -20,10 +20,10 @@ const registerSchema = z
         password: z.string().min(4).max(32),
         confirmPassword: z.string().min(4).max(32),
     })
-    .refine(
-        (data) => data.password === data.confirmPassword,
-        "Passwords must match"
-    );
+    .refine((data) => data.password === data.confirmPassword, {
+        message: "Passwords do not match",
+        path: ["confirmPassword"],
+    });
 
 export default function Register() {
     const navigate = useNavigate();
@@ -67,13 +67,13 @@ export default function Register() {
                         size="lg"
                         placeholder="example@drafted.dev"
                         key={form.key("email")}
-                        leftSection={<IconAt size={18} />}
+                        leftSection={<IconAt />}
                         {...form.getInputProps("email")}
                     />
                     <PasswordInput
                         label="Password"
                         size="lg"
-                        leftSection={<IconLock size={18} />}
+                        leftSection={<IconLock />}
                         placeholder="Enter your password"
                         key={form.key("password")}
                         {...form.getInputProps("password")}
@@ -81,7 +81,7 @@ export default function Register() {
                     <PasswordInput
                         size="lg"
                         label="Confirm Password"
-                        leftSection={<IconPassword size={18} />}
+                        leftSection={<IconLock />}
                         placeholder="Confirm your password"
                         key={form.key("confirmPassword")}
                         {...form.getInputProps("confirmPassword")}
@@ -92,6 +92,7 @@ export default function Register() {
                         style={{
                             alignSelf: "flex-end",
                         }}
+                        loading={form.submitting}
                     >
                         Register
                     </Button>
