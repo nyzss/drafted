@@ -1,5 +1,6 @@
 import {
     Button,
+    Card,
     createTheme,
     Input,
     NavLink,
@@ -20,6 +21,11 @@ export const theme = createTheme({
         Paper: Paper.extend({
             defaultProps: {
                 radius: "xs",
+            },
+        }),
+        Card: Card.extend({
+            defaultProps: {
+                radius: "lg",
             },
         }),
         Input: Input.extend({
