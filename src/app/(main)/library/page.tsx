@@ -1,39 +1,17 @@
 "use client";
 
-import { client } from "@/client";
-
 import { BookmarkList } from "@/components/bookmark/bookmark-list";
 import { sampleBookmarks } from "@/components/bookmark/bookmarks";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { AddBookmarkDialog } from "@/components/bookmark/add-bookmark-dialog";
 
 export default function LibraryPage() {
-    const [url, setUrl] = useState("");
-
-    const handleAdd = async () => {
-        const res = await client.api.bookmark.$post({
-            json: {
-                url,
-            },
-        });
-
-        const json = await res.json();
-
-        console.log("BOOKMARK ADDED:", json);
-    };
     return (
         <div className="container py-8">
-            <BookmarkList bookmarks={sampleBookmarks} />
-
-            <div className="flex items-center gap-2 mt-3">
-                <Input
-                    placeholder="Search"
-                    value={url}
-                    onChange={(e) => setUrl(e.target.value)}
-                />
-                <Button onClick={handleAdd}>Add</Button>
+            <div className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl font-bold">Library</h1>
+                <AddBookmarkDialog />
             </div>
+            <BookmarkList bookmarks={sampleBookmarks} />
         </div>
     );
 }
