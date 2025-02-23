@@ -17,6 +17,9 @@ app.post("/chat", async (c) => {
     const { messages }: { messages: Message[] } = await c.req.json();
     const resp = streamText({
         model: openai("gpt-4o-mini"),
+        system: `
+            You are an assistant that will help user find their bookmarks
+        `,
         messages,
     });
 

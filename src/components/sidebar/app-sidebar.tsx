@@ -1,7 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { AudioWaveform, Home, LifeBuoy, Pen, Settings2 } from "lucide-react";
+import {
+    AudioWaveform,
+    Book,
+    Home,
+    LifeBuoy,
+    Pen,
+    Settings2,
+} from "lucide-react";
 
 import { NavProjects } from "@/components/sidebar/nav-projects";
 import { NavUser } from "@/components/sidebar/nav-user";
@@ -64,6 +71,11 @@ const data = {
             name: "Home",
             url: "/dashboard",
             icon: Home,
+        },
+        {
+            name: "Library",
+            url: "/library",
+            icon: Book,
         },
     ],
 };
