@@ -1,11 +1,11 @@
-import Link from "next/link";
+import { HeroGeometric } from "@/components/ui/shape-landing-hero";
 
 export default function Home() {
     return (
-        <div className="flex flex-col items-center justify-center h-screen">
-            <h1>Hello World</h1>
-            <p>Landing page</p>
-            <Link href="/dashboard">Dashboard</Link>
-        </div>
+        <HeroGeometric
+            badge="drafted"
+            title1="Elevate Your"
+            title2="Bookmark Experience"
+        />
     );
 }
