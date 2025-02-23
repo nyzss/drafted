@@ -4,8 +4,6 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
     return (
@@ -18,8 +16,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     </div>
                 </header>
                 <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-                    <TooltipProvider>{children}</TooltipProvider>
-                    <Toaster />
+                    {children}
                 </div>
             </SidebarInset>
         </SidebarProvider>

@@ -15,55 +15,38 @@ import {
 import { Plus, Loader2 } from "lucide-react";
 import { client } from "@/client";
 import { OpenGraphData } from "@/app/api/[...route]/bookmark/bookmark";
+import { useMutation } from "@tanstack/react-query";
 
-interface AddBookmarkDialogProps {
-    onBookmarkAdded?: () => void;
-}
-
-export function AddBookmarkDialog({ onBookmarkAdded }: AddBookmarkDialogProps) {
+export function AddBookmarkDialog() {
     const [url, setUrl] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
     const [preview, setPreview] = useState<OpenGraphData | null>(null);
     const [open, setOpen] = useState(false);
 
-    const handleAdd = async () => {
-        try {
-            setIsLoading(true);
+    const previewBookmarkMutation = useMutation({
+        mutationFn: async ({ url }: { url: string }) => {
             const res = await client.api.bookmark.preview.$get({
                 query: { url },
             });
             const data = await res.json();
-
-            if (data.success) {
-                setPreview({
-                    ogTitle: data.bookmark.ogTitle,
-                    ogDescription: data.bookmark.ogDescription || undefined,
-                    ogImage: data.bookmark.ogImage
-                        ? [{ url: data.bookmark.ogImage[0].url }]
-                        : undefined,
-                });
-            } else {
-                console.error(
-                    "Error fetching bookmark data:",
-                    data.message || "Unknown error"
-                );
+            if (!data.success) {
+                throw new Error(data.message);
             }
-        } catch (error) {
+            return data.bookmark;
+        },
+        onSuccess: (data) => {
+            setPreview({
+                ogTitle: data.ogTitle,
+                ogDescription: data.ogDescription,
+                ogImage: data.ogImage,
+            });
+        },
+        onError: (error) => {
             console.error("Error fetching bookmark data:", error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+        },
+    });
 
-    const handleSubmit = async () => {
-        if (preview) {
-            // TODO: save bookmark to database
-            console.log("Saving bookmark:", preview);
-            onBookmarkAdded?.();
-            setOpen(false);
-            setUrl("");
-            setPreview(null);
-        }
+    const handlePreview = async () => {
+        previewBookmarkMutation.mutate({ url });
     };
 
     return (
@@ -88,16 +71,19 @@ export function AddBookmarkDialog({ onBookmarkAdded }: AddBookmarkDialogProps) {
                             value={url}
                             onChange={(e) => setUrl(e.target.value)}
                             onKeyDown={(e) => {
-                                if (e.key === "Enter" && !isLoading) {
-                                    handleAdd();
+                                if (
+                                    e.key === "Enter" &&
+                                    !previewBookmarkMutation.isPending
+                                ) {
+                                    handlePreview();
                                 }
                             }}
                         />
                         <Button
-                            onClick={handleAdd}
-                            disabled={isLoading || !url}
+                            onClick={handlePreview}
+                            disabled={previewBookmarkMutation.isPending || !url}
                         >
-                            {isLoading ? (
+                            {previewBookmarkMutation.isPending ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
                             ) : (
                                 "Preview"
@@ -134,8 +120,8 @@ export function AddBookmarkDialog({ onBookmarkAdded }: AddBookmarkDialogProps) {
                         Cancel
                     </Button>
                     <Button
-                        onClick={handleSubmit}
-                        disabled={!preview || isLoading}
+                        onClick={handlePreview}
+                        // disabled={}
                     >
                         Add Bookmark
                     </Button>
