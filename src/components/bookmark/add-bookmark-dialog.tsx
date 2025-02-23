@@ -14,12 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Plus, Loader2 } from "lucide-react";
 import { client } from "@/client";
-
-interface OpenGraphData {
-    ogTitle?: string;
-    ogDescription?: string;
-    ogImage?: Array<{ url: string }>;
-}
+import { OpenGraphData } from "@/app/api/[...route]/bookmark/bookmark";
 
 interface AddBookmarkDialogProps {
     onBookmarkAdded?: () => void;
@@ -34,21 +29,23 @@ export function AddBookmarkDialog({ onBookmarkAdded }: AddBookmarkDialogProps) {
     const handleAdd = async () => {
         try {
             setIsLoading(true);
-            const res = await client.api.bookmark.$post({
-                json: { url },
+            const res = await client.api.bookmark.preview.$get({
+                query: { url },
             });
             const data = await res.json();
 
-            if (!data.error && data.result) {
+            if (data.success) {
                 setPreview({
-                    ogTitle: data.result.ogTitle,
-                    ogDescription: data.result.ogDescription,
-                    ogImage: data.result.ogImage,
+                    ogTitle: data.bookmark.ogTitle,
+                    ogDescription: data.bookmark.ogDescription || undefined,
+                    ogImage: data.bookmark.ogImage
+                        ? [{ url: data.bookmark.ogImage[0].url }]
+                        : undefined,
                 });
             } else {
                 console.error(
                     "Error fetching bookmark data:",
-                    data.error || "Unknown error"
+                    data.message || "Unknown error"
                 );
             }
         } catch (error) {

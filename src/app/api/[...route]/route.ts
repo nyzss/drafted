@@ -6,9 +6,8 @@ import bookmarkRouter from "./bookmark/bookmark";
 
 export const runtime = "edge";
 
-const app = new Hono().basePath("/api");
-
-const router = app
+const app = new Hono()
+    .basePath("/api")
     .get("/hello", (c) => {
         return c.json({
             message: "Hello from Hono!",
@@ -43,7 +42,7 @@ const router = app
     })
     .route("/bookmark", bookmarkRouter);
 
-export type AppType = typeof router;
+export type AppType = typeof app;
 
-export const GET = handle(router);
-export const POST = handle(router);
+export const GET = handle(app);
+export const POST = handle(app);
