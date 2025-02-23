@@ -26,7 +26,7 @@ export default function LibraryPage() {
         <div className="container py-8">
             <BookmarkList bookmarks={sampleBookmarks} />
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mt-3">
                 <Input
                     placeholder="Search"
                     value={url}
