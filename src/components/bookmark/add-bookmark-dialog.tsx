@@ -12,15 +12,30 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, CircleXIcon } from "lucide-react";
 import { client } from "@/client";
-import { OpenGraphData } from "@/app/api/[...route]/bookmark/bookmark";
+import { OpenGraphData } from "@/types/bookmark";
 import { useMutation } from "@tanstack/react-query";
+import PreviewBookmark from "./preview-bookmark";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/form";
+
+const formSchema = z.object({
+    url: z.string().url(),
+});
 
 export function AddBookmarkDialog() {
-    const [url, setUrl] = useState("");
     const [preview, setPreview] = useState<OpenGraphData | null>(null);
     const [open, setOpen] = useState(false);
+
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            url: "",
+        },
+    });
 
     const previewBookmarkMutation = useMutation({
         mutationFn: async ({ url }: { url: string }) => {
@@ -31,13 +46,14 @@ export function AddBookmarkDialog() {
             if (!data.success) {
                 throw new Error(data.message);
             }
-            return data.bookmark;
+            return { ...data.bookmark, url };
         },
         onSuccess: (data) => {
             setPreview({
                 ogTitle: data.ogTitle,
                 ogDescription: data.ogDescription,
                 ogImage: data.ogImage,
+                url: data.url,
             });
         },
         onError: (error) => {
@@ -45,8 +61,13 @@ export function AddBookmarkDialog() {
         },
     });
 
-    const handlePreview = async () => {
-        previewBookmarkMutation.mutate({ url });
+    const handlePreview = form.handleSubmit(async (data) => {
+        previewBookmarkMutation.mutate({ url: data.url });
+    });
+
+    const handleClear = () => {
+        form.reset();
+        setPreview(null);
     };
 
     return (
@@ -65,55 +86,58 @@ export function AddBookmarkDialog() {
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
-                    <div className="flex items-center gap-2">
-                        <Input
-                            placeholder="https://example.com"
-                            value={url}
-                            onChange={(e) => setUrl(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (
-                                    e.key === "Enter" &&
-                                    !previewBookmarkMutation.isPending
-                                ) {
-                                    handlePreview();
-                                }
-                            }}
-                        />
-                        <Button
-                            onClick={handlePreview}
-                            disabled={previewBookmarkMutation.isPending || !url}
+                    <Form {...form}>
+                        <form
+                            onSubmit={handlePreview}
+                            className="flex items-end gap-2"
                         >
-                            {previewBookmarkMutation.isPending ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                                "Preview"
-                            )}
-                        </Button>
-                    </div>
-
-                    {preview && (
-                        <div className="rounded-lg border p-4 space-y-3">
-                            {preview.ogImage?.[0]?.url && (
-                                <div className="aspect-video w-full overflow-hidden rounded-md">
-                                    <img
-                                        src={preview.ogImage[0].url}
-                                        alt={preview.ogTitle || "Preview"}
-                                        className="h-full w-full object-cover"
-                                    />
-                                </div>
-                            )}
-                            <div>
-                                <h3 className="font-medium">
-                                    {preview.ogTitle || url}
-                                </h3>
-                                {preview.ogDescription && (
-                                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                                        {preview.ogDescription}
-                                    </p>
+                            <FormField
+                                control={form.control}
+                                name="url"
+                                render={({ field }) => (
+                                    <FormItem className="flex-1">
+                                        <FormLabel>URL</FormLabel>
+                                        <FormControl>
+                                            <div className="relative">
+                                                <Input
+                                                    className="pe-9"
+                                                    placeholder="https://example.com"
+                                                    type="text"
+                                                    {...field}
+                                                />
+                                                {field.value && (
+                                                    <button
+                                                        className="text-muted-foreground/80 hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md transition-[color,box-shadow] outline-none focus:z-10 focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+                                                        aria-label="Clear input"
+                                                        onClick={handleClear}
+                                                    >
+                                                        <CircleXIcon
+                                                            size={16}
+                                                            aria-hidden="true"
+                                                        />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </FormControl>
+                                    </FormItem>
                                 )}
-                            </div>
-                        </div>
-                    )}
+                            />
+                            <Button
+                                type="submit"
+                                disabled={
+                                    previewBookmarkMutation.isPending ||
+                                    !form.formState.isValid
+                                }
+                            >
+                                {previewBookmarkMutation.isPending ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                    "Preview"
+                                )}
+                            </Button>
+                        </form>
+                    </Form>
+                    {preview && <PreviewBookmark preview={preview} />}
                 </div>
                 <DialogFooter>
                     <Button variant="outline" onClick={() => setOpen(false)}>
@@ -121,7 +145,7 @@ export function AddBookmarkDialog() {
                     </Button>
                     <Button
                         onClick={handlePreview}
-                        // disabled={}
+                        disabled={!preview || !form.formState.isValid}
                     >
                         Add Bookmark
                     </Button>

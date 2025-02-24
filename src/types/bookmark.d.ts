@@ -8,3 +8,10 @@ export interface Bookmark {
     createdAt: Date;
     updatedAt: Date;
 }
+
+export interface OpenGraphData {
+    ogTitle?: string;
+    ogDescription?: string;
+    ogImage?: Array<{ url: string }>;
+    url?: string;
+}

@@ -3,21 +3,13 @@ import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { db } from "@/db/db";
 import { bookmarksTable } from "@/db/schema";
-import { InferSelectModel } from "drizzle-orm";
 import { getOpenGraphData } from "@/utils";
+import { OpenGraphData } from "@/types/bookmark";
 
 type ErrorResponse = {
     success: false;
     message: string;
 };
-
-export type BoookmarkModel = InferSelectModel<typeof bookmarksTable>;
-
-export interface OpenGraphData {
-    ogTitle?: string;
-    ogDescription?: string;
-    ogImage?: Array<{ url: string }>;
-}
 
 type SuccessResponse = {
     success: true;
