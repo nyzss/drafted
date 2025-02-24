@@ -1,45 +1,43 @@
-import { Hono } from "hono";
+import { Env, Hono } from "hono";
 import { handle } from "hono/vercel";
-import { Message, streamText } from "ai";
-import { openai } from "@ai-sdk/openai";
-import bookmarkRouter from "./bookmark/bookmark";
+import bookmarkRouter from "./routes/bookmark";
+import aiRouter from "./routes/ai";
+import { auth } from "@/lib/auth";
+import { protectedMiddleware } from "./middleware/protected";
 
 export const runtime = "edge";
+export interface HonoType extends Env {
+    Variables: {
+        user: typeof auth.$Infer.Session.user | null;
+        session: typeof auth.$Infer.Session.session | null;
+    };
+}
 
-const app = new Hono()
+const app = new Hono<HonoType>()
     .basePath("/api")
-    .get("/hello", (c) => {
-        return c.json({
-            message: "Hello from Hono!",
-        });
-    })
-    .post("/chat", async (c) => {
-        const { messages }: { messages: Message[] } = await c.req.json();
-        const resp = streamText({
-            model: openai("gpt-4o-mini"),
-            system: `
-            You are an assistant that will help user find their bookmarks
-        `,
-            messages,
+    .use("*", async (c, next) => {
+        // better auth middleware to get user and session
+        const session = await auth.api.getSession({
+            headers: c.req.raw.headers,
         });
 
-        return resp.toDataStreamResponse();
-    })
-    .post("/completion", async (c) => {
-        const { prompt }: { prompt: string } = await c.req.json();
-        const resp = streamText({
-            model: openai("gpt-4o-mini"),
-            system: `
-            You are a auto-completion system that completes the user's prompt.
-            You will usually complete the prompt with a few words, but sometimes you will complete the prompt with a few sentences.
-            Do not add any other text than the completion.
-            Follow the user's prompt closely.
-            `,
-            prompt,
-        });
+        if (!session) {
+            c.set("user", null);
+            c.set("session", null);
+            return next();
+        }
 
-        return resp.toDataStreamResponse();
+        c.set("user", session.user);
+        c.set("session", session.session);
+        return next();
     })
+    .on(["POST", "GET"], "/auth/*", (c) => {
+        // better auth handler
+        return auth.handler(c.req.raw);
+    })
+    .use("/ai/*", protectedMiddleware)
+    .use("/bookmark/*", protectedMiddleware)
+    .route("/ai", aiRouter)
     .route("/bookmark", bookmarkRouter);
 
 export type AppType = typeof app;

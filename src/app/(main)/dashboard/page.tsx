@@ -3,7 +3,7 @@ import { useChat } from "@ai-sdk/react";
 
 export default function DashboardPage() {
     const { messages, input, handleInputChange, handleSubmit } = useChat({
-        api: "/api/chat",
+        api: "/api/ai/chat",
     });
 
     return (

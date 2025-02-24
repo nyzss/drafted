@@ -5,6 +5,7 @@ import { db } from "@/db/db";
 import { bookmarksTable } from "@/db/schema";
 import { getOpenGraphData } from "@/utils";
 import { OpenGraphData } from "@/types/bookmark";
+import type { HonoType } from "../route";
 
 type ErrorResponse = {
     success: false;
@@ -19,7 +20,7 @@ type SuccessResponse = {
 
 export type ApiResponse = ErrorResponse | SuccessResponse;
 
-const app = new Hono()
+const app = new Hono<HonoType>()
     .get(
         "/preview",
         zValidator("query", z.object({ url: z.string() })),
