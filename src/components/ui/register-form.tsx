@@ -27,6 +27,8 @@ import PasswordInput from "../password-input";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 const schema = z
     .object({
         name: z
@@ -47,6 +49,7 @@ export function RegisterForm({
     className,
     ...props
 }: React.ComponentProps<"div">) {
+    const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
 
     const form = useForm({
@@ -60,11 +63,13 @@ export function RegisterForm({
     });
 
     const handleRegister = form.handleSubmit(async (data) => {
+        setIsLoading(true);
         const user = await authClient.signUp.email({
             email: data.email,
             name: data.name,
             password: data.password,
         });
+        setIsLoading(false);
         if (user.error) {
             toast.error("Could not create account");
             console.log(user.error);
@@ -194,8 +199,19 @@ export function RegisterForm({
                                             )}
                                         />
                                     </div>
-                                    <Button type="submit" className="w-full">
-                                        Sign up
+                                    <Button
+                                        type="submit"
+                                        className="w-full"
+                                        disabled={isLoading}
+                                    >
+                                        {isLoading ? (
+                                            <>
+                                                <Loader2 className="size-4 mr-2 animate-spin" />
+                                                Signing up...
+                                            </>
+                                        ) : (
+                                            "Sign up"
+                                        )}
                                     </Button>
                                 </div>
                                 <div className="text-center text-sm">

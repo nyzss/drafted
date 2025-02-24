@@ -26,11 +26,17 @@ import {
     useSidebar,
 } from "@/components/ui/sidebar";
 import { ThemeSwitcher } from "./theme-switcher";
-import { useSession } from "@/lib/auth-client";
-
+import { authClient, useSession } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 export function NavUser() {
     const { isMobile } = useSidebar();
     const { data: session } = useSession();
+    const router = useRouter();
+
+    const handleLogout = () => {
+        authClient.signOut();
+        router.push("/");
+    };
 
     return (
         <SidebarMenu>
@@ -119,7 +125,7 @@ export function NavUser() {
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleLogout}>
                             <LogOut />
                             Log out
                         </DropdownMenuItem>

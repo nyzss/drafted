@@ -27,6 +27,9 @@ import PasswordInput from "./password-input";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
+
 const schema = z.object({
     email: z.string().email({ message: "Invalid email address" }),
     password: z
@@ -38,6 +41,7 @@ export function LoginForm({
     className,
     ...props
 }: React.ComponentProps<"div">) {
+    const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
     const form = useForm({
         defaultValues: {
@@ -48,11 +52,13 @@ export function LoginForm({
     });
 
     const handleLogin = form.handleSubmit(async (data) => {
+        setIsLoading(true);
         const user = await authClient.signIn.email({
             email: data.email,
             password: data.password,
             rememberMe: true,
         });
+        setIsLoading(false);
         if (user.error) {
             toast.error(user.error.message);
             return;
@@ -146,8 +152,19 @@ export function LoginForm({
                                             )}
                                         />
                                     </div>
-                                    <Button type="submit" className="w-full">
-                                        Login
+                                    <Button
+                                        type="submit"
+                                        className="w-full"
+                                        disabled={isLoading}
+                                    >
+                                        {isLoading ? (
+                                            <>
+                                                <Loader2 className="size-4 mr-2 animate-spin" />
+                                                Logging in...
+                                            </>
+                                        ) : (
+                                            "Login"
+                                        )}
                                     </Button>
                                 </div>
                                 <div className="text-center text-sm">
