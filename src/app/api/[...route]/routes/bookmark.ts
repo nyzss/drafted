@@ -6,6 +6,7 @@ import { bookmarksTable } from "@/db/schema";
 import { getOpenGraphData } from "@/utils";
 import { OpenGraphData } from "@/types/bookmark";
 import type { HonoType } from "../route";
+import { and, desc, eq, ilike, or } from "drizzle-orm";
 
 type ErrorResponse = {
     success: false;
@@ -21,6 +22,55 @@ type SuccessResponse = {
 export type ApiResponse = ErrorResponse | SuccessResponse;
 
 const app = new Hono<HonoType>()
+    .get(
+        "/list",
+        zValidator(
+            "query",
+            z
+                .object({
+                    offset: z.number().optional(),
+                    limit: z.number().optional(),
+                    search: z.string().optional(),
+                })
+                .optional()
+        ),
+        async (c) => {
+            const user = c.get("user")!;
+            const {
+                offset = 0,
+                limit = 10,
+                search,
+            } = c.req.valid("query") || {};
+
+            const bookmarks = await db
+                .select()
+                .from(bookmarksTable)
+                .where(
+                    and(
+                        eq(bookmarksTable.userId, user.id),
+                        search
+                            ? or(
+                                  ilike(bookmarksTable.title, `%${search}%`),
+                                  ilike(bookmarksTable.url, `%${search}%`),
+                                  ilike(
+                                      bookmarksTable.description,
+                                      `%${search}%`
+                                  )
+                              )
+                            : undefined
+                    )
+                )
+                .limit(limit)
+                .offset(offset)
+                .orderBy(desc(bookmarksTable.createdAt));
+
+            return c.json({
+                success: true,
+                message: "Bookmarks fetched successfully",
+                bookmarks,
+            });
+        }
+    )
     .get(
         "/preview",
         zValidator("query", z.object({ url: z.string() })),
@@ -51,7 +101,7 @@ const app = new Hono<HonoType>()
         zValidator("query", z.object({ url: z.string() })),
         async (c) => {
             const { url } = c.req.valid("query");
-
+            const user = c.get("user")!;
             const data = await getOpenGraphData(url);
 
             const ogImage = Array.isArray(data.result.ogImage)
@@ -61,7 +111,7 @@ const app = new Hono<HonoType>()
             const res = await db
                 .insert(bookmarksTable)
                 .values({
-                    userId: "daed8c5a-ec22-4275-bfeb-196f5ea0f334",
+                    userId: user.id,
                     title: data.result.ogTitle || url,
                     url: data.result.ogUrl || url,
                     description: data.result.ogDescription || null,

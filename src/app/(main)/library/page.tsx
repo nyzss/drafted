@@ -1,7 +1,6 @@
 "use client";
 
 import { BookmarkList } from "@/components/bookmark/bookmark-list";
-import { sampleBookmarks } from "@/components/bookmark/bookmarks";
 import { AddBookmarkDialog } from "@/components/bookmark/add-bookmark-dialog";
 
 export default function LibraryPage() {
@@ -11,7 +10,7 @@ export default function LibraryPage() {
                 <h1 className="text-3xl font-bold">Library</h1>
                 <AddBookmarkDialog />
             </div>
-            <BookmarkList bookmarks={sampleBookmarks} />
+            <BookmarkList />
         </div>
     );
 }

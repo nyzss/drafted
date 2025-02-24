@@ -1,19 +1,34 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { LayoutGrid, List } from "lucide-react";
+import { LayoutGrid, List, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { type Bookmark } from "@/types/bookmark";
 import { cn } from "@/lib/utils";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { format } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
+import { client } from "@/lib/client";
 
-interface BookmarkListProps {
-    bookmarks: Bookmark[];
-}
+export function BookmarkList() {
+    const { data: bookmarks, isPending } = useQuery({
+        queryKey: ["bookmarks"],
+        queryFn: async () => {
+            const resp = await client.api.bookmark.list.$get();
+            const data = await resp.json();
 
-export function BookmarkList({ bookmarks }: BookmarkListProps) {
+            return data.bookmarks;
+        },
+    });
     const [view, setView] = useState<"list" | "grid">("list");
+
+    if (isPending || !bookmarks) {
+        return (
+            <div className="flex justify-center items-center h-full">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="ml-2">Loading...</span>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-4">
@@ -53,7 +68,7 @@ export function BookmarkList({ bookmarks }: BookmarkListProps) {
                                 : "flex flex-col space-y-2"
                         )}
                     >
-                        {bookmark.thumbnail && (
+                        {bookmark.image && (
                             <div
                                 className={cn(
                                     "overflow-hidden rounded-md",
@@ -63,7 +78,7 @@ export function BookmarkList({ bookmarks }: BookmarkListProps) {
                                 )}
                             >
                                 <img
-                                    src={bookmark.thumbnail}
+                                    src={bookmark.image}
                                     alt={bookmark.title}
                                     className="h-full w-full object-cover"
                                 />
@@ -85,18 +100,6 @@ export function BookmarkList({ bookmarks }: BookmarkListProps) {
                                     {bookmark.description}
                                 </p>
                             )}
-                            {bookmark.tags && bookmark.tags.length > 0 && (
-                                <div className="flex flex-wrap gap-1">
-                                    {bookmark.tags.map((tag) => (
-                                        <span
-                                            key={tag}
-                                            className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs font-medium"
-                                        >
-                                            {tag}
-                                        </span>
-                                    ))}
-                                </div>
-                            )}
                             <div className="text-xs text-muted-foreground">
                                 Added{" "}
                                 {format(bookmark.createdAt, "MMM d, yyyy")}
@@ -104,6 +107,13 @@ export function BookmarkList({ bookmarks }: BookmarkListProps) {
                         </div>
                     </div>
                 ))}
+                {bookmarks.length === 0 && (
+                    <div className="flex justify-center items-center h-full">
+                        <p className="text-muted-foreground">
+                            No bookmarks found
+                        </p>
+                    </div>
+                )}
             </div>
         </div>
     );

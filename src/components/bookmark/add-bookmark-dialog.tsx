@@ -15,7 +15,7 @@ import {
 import { Plus, Loader2, CircleXIcon, LoaderCircleIcon } from "lucide-react";
 import { client } from "@/lib/client";
 import { OpenGraphData } from "@/types/bookmark";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import PreviewBookmark from "./preview-bookmark";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -30,6 +30,8 @@ const formSchema = z.object({
 export function AddBookmarkDialog() {
     const [preview, setPreview] = useState<OpenGraphData | null>(null);
     const [open, setOpen] = useState(false);
+
+    const queryClient = useQueryClient();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -80,6 +82,7 @@ export function AddBookmarkDialog() {
             });
 
             setOpen(false);
+            queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
         },
         onError: (error) => {
             console.error("Error adding bookmark:", error);
