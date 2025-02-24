@@ -8,21 +8,16 @@ import {
     AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+import { usersTable } from "./auth-schema";
 
-export const usersTable = pgTable("users", {
-    id: uuid().defaultRandom().primaryKey(),
-    name: varchar({ length: 255 }).notNull(),
-    email: varchar({ length: 255 }).notNull().unique(),
-    createdAt: timestamp().defaultNow().notNull(),
-    updatedAt: timestamp().defaultNow().notNull(),
-});
+export * from "./auth-schema";
 
 export const foldersTable = pgTable("folders", {
     id: uuid().defaultRandom().primaryKey(),
     name: varchar({ length: 255 }).notNull(),
     description: text(),
     parentId: uuid("parent_id").references((): AnyPgColumn => foldersTable.id),
-    userId: uuid()
+    userId: text()
         .references(() => usersTable.id)
         .notNull(),
     icon: varchar({ length: 255 }),
@@ -44,7 +39,7 @@ export const bookmarksTable = pgTable("bookmarks", {
     ogDescription: text(),
     charset: varchar({ length: 32 }),
     folderId: uuid().references(() => foldersTable.id),
-    userId: uuid()
+    userId: text()
         .references(() => usersTable.id)
         .notNull(),
     isPrivate: boolean().default(false).notNull(),
@@ -55,7 +50,7 @@ export const bookmarksTable = pgTable("bookmarks", {
 export const tagsTable = pgTable("tags", {
     id: uuid().defaultRandom().primaryKey(),
     name: varchar({ length: 50 }).notNull(),
-    userId: uuid()
+    userId: text()
         .references(() => usersTable.id)
         .notNull(),
     createdAt: timestamp().defaultNow().notNull(),

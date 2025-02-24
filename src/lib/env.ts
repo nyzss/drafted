@@ -5,6 +5,8 @@ export const env = createEnv({
     server: {
         DATABASE_URL: z.string().url(),
         OPENAI_API_KEY: z.string().min(1),
+        BETTER_AUTH_SECRET: z.string().min(1),
+        BETTER_AUTH_URL: z.string().url(),
     },
     client: {
         NEXT_PUBLIC_API_URL: z.string().url(),
