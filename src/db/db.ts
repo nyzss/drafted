@@ -3,7 +3,7 @@ import { env } from "@/lib/env";
 import { neon } from "@neondatabase/serverless";
 import * as schema from "./schema";
 if (!env.DATABASE_URL) {
-    throw new Error("DATABASE_URL is not set");
+  throw new Error("DATABASE_URL is not set");
 }
 
 const sql = neon(env.DATABASE_URL);

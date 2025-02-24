@@ -7,38 +7,38 @@ import { protectedMiddleware } from "./middleware/protected";
 
 export const runtime = "edge";
 export interface HonoType extends Env {
-    Variables: {
-        user: typeof auth.$Infer.Session.user | null;
-        session: typeof auth.$Infer.Session.session | null;
-    };
+  Variables: {
+    user: typeof auth.$Infer.Session.user | null;
+    session: typeof auth.$Infer.Session.session | null;
+  };
 }
 
 const app = new Hono<HonoType>()
-    .basePath("/api")
-    .use("*", async (c, next) => {
-        // better auth middleware to get user and session
-        const session = await auth.api.getSession({
-            headers: c.req.raw.headers,
-        });
+  .basePath("/api")
+  .use("*", async (c, next) => {
+    // better auth middleware to get user and session
+    const session = await auth.api.getSession({
+      headers: c.req.raw.headers,
+    });
 
-        if (!session) {
-            c.set("user", null);
-            c.set("session", null);
-            return next();
-        }
+    if (!session) {
+      c.set("user", null);
+      c.set("session", null);
+      return next();
+    }
 
-        c.set("user", session.user);
-        c.set("session", session.session);
-        return next();
-    })
-    .on(["POST", "GET"], "/auth/*", (c) => {
-        // better auth handler
-        return auth.handler(c.req.raw);
-    })
-    .use("/ai/*", protectedMiddleware)
-    .use("/bookmark/*", protectedMiddleware)
-    .route("/ai", aiRouter)
-    .route("/bookmark", bookmarkRouter);
+    c.set("user", session.user);
+    c.set("session", session.session);
+    return next();
+  })
+  .on(["POST", "GET"], "/auth/*", (c) => {
+    // better auth handler
+    return auth.handler(c.req.raw);
+  })
+  .use("/ai/*", protectedMiddleware)
+  .use("/bookmark/*", protectedMiddleware)
+  .route("/ai", aiRouter)
+  .route("/bookmark", bookmarkRouter);
 
 export type AppType = typeof app;
 

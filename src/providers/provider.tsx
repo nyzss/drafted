@@ -7,19 +7,19 @@ import { Toaster } from "@/components/ui/sonner";
 const queryClient = new QueryClient();
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-    return (
-        <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            // disableTransitionOnChange
-        >
-            <QueryClientProvider client={queryClient}>
-                <TooltipProvider>
-                    {children}
-                    <Toaster />
-                </TooltipProvider>
-            </QueryClientProvider>
-        </ThemeProvider>
-    );
+  return (
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      // disableTransitionOnChange
+    >
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          {children}
+          <Toaster />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
+  );
 }
