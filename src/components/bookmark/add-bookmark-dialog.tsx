@@ -12,7 +12,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Loader2, CircleXIcon } from "lucide-react";
+import { Plus, Loader2, CircleXIcon, LoaderCircleIcon } from "lucide-react";
 import { client } from "@/client";
 import { OpenGraphData } from "@/types/bookmark";
 import { useMutation } from "@tanstack/react-query";
@@ -21,6 +21,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/form";
+import { toast } from "sonner";
 
 const formSchema = z.object({
     url: z.string().url(),
@@ -60,6 +61,36 @@ export function AddBookmarkDialog() {
             console.error("Error fetching bookmark data:", error);
         },
     });
+
+    const addBookmarkMutation = useMutation({
+        mutationFn: async ({ url }: { url: string }) => {
+            const res = await client.api.bookmark.$post({
+                query: { url },
+            });
+            const data = await res.json();
+            if (!data.success) {
+                throw new Error(data.message);
+            }
+            return data.message;
+        },
+        onSuccess: (data) => {
+            toast.success(data, {
+                description: "Bookmark added successfully",
+                position: "bottom-right",
+            });
+
+            setOpen(false);
+        },
+        onError: (error) => {
+            console.error("Error adding bookmark:", error);
+        },
+    });
+
+    const handleAddBookmark = async () => {
+        const url = form.getValues("url");
+
+        addBookmarkMutation.mutate({ url });
+    };
 
     const handlePreview = form.handleSubmit(async (data) => {
         previewBookmarkMutation.mutate({ url: data.url });
@@ -130,7 +161,10 @@ export function AddBookmarkDialog() {
                                 }
                             >
                                 {previewBookmarkMutation.isPending ? (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    <>
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        Loading..
+                                    </>
                                 ) : (
                                     "Preview"
                                 )}
@@ -144,10 +178,24 @@ export function AddBookmarkDialog() {
                         Cancel
                     </Button>
                     <Button
-                        onClick={handlePreview}
-                        disabled={!preview || !form.formState.isValid}
+                        onClick={handleAddBookmark}
+                        disabled={
+                            !form.formState.isValid ||
+                            addBookmarkMutation.isPending
+                        }
                     >
-                        Add Bookmark
+                        {addBookmarkMutation.isPending ? (
+                            <>
+                                <LoaderCircleIcon
+                                    className="-ms-1 animate-spin"
+                                    size={16}
+                                    aria-hidden="true"
+                                />
+                                Adding..
+                            </>
+                        ) : (
+                            "Add Bookmark"
+                        )}
                     </Button>
                 </DialogFooter>
             </DialogContent>
