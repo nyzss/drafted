@@ -13,7 +13,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Plus, Loader2, CircleXIcon, LoaderCircleIcon } from "lucide-react";
-import { client } from "@/client";
+import { client } from "@/lib/client";
 import { OpenGraphData } from "@/types/bookmark";
 import { useMutation } from "@tanstack/react-query";
 import PreviewBookmark from "./preview-bookmark";
