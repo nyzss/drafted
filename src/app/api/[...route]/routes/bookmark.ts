@@ -21,6 +21,18 @@ type SuccessResponse = {
 
 export type ApiResponse = ErrorResponse | SuccessResponse;
 
+const updateBookmarkSchema = z.object({
+  id: z.string(),
+  title: z.string().min(1, "Title is required").optional(),
+  description: z.string().optional(),
+  url: z.string().url("Please enter a valid URL").optional(),
+  image: z.string().url("Please enter a valid image URL").optional().nullable(),
+  isPrivate: z.boolean().optional(),
+  folderId: z.string().optional().nullable(),
+});
+
+export type UpdateBookmarkRequest = z.infer<typeof updateBookmarkSchema>;
+
 const app = new Hono<HonoType>()
   .get(
     "/list",
@@ -110,6 +122,9 @@ const app = new Hono<HonoType>()
         ogTitle: data.result.ogTitle || null,
         ogDescription: data.result.ogDescription || null,
         isPrivate: false,
+        favicon: data.result.favicon || null,
+        charset: data.result.charset || null,
+        ogImage: ogImage || null,
       })
       .returning();
 
@@ -126,6 +141,39 @@ const app = new Hono<HonoType>()
     return c.json({
       success: true,
       message: "Bookmark added successfully",
+    });
+  })
+  .put("/", zValidator("json", updateBookmarkSchema), async (c) => {
+    const updateData = c.req.valid("json");
+    const user = c.get("user")!;
+
+    const res = await db
+      .update(bookmarksTable)
+      .set({
+        ...updateData,
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(bookmarksTable.id, updateData.id),
+          eq(bookmarksTable.userId, user.id),
+        ),
+      )
+      .returning();
+
+    if (!res || res.length === 0) {
+      return c.json(
+        {
+          success: false,
+          message: "Couldn't update bookmark",
+        },
+        400,
+      );
+    }
+
+    return c.json({
+      success: true,
+      message: "Bookmark updated successfully",
     });
   });
 
