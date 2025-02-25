@@ -32,14 +32,6 @@ export function BookmarkList() {
     setInfoDialogOpen(true);
   };
 
-  const handleLinkClick = (
-    e: React.MouseEvent<HTMLAnchorElement>,
-    url: string,
-  ) => {
-    e.stopPropagation();
-    window.open(url, "_blank", "noopener,noreferrer");
-  };
-
   if (isPending || !bookmarks) {
     return (
       <div className="flex justify-center items-center h-full">
@@ -109,7 +101,9 @@ export function BookmarkList() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:underline"
-                  onClick={(e) => handleLinkClick(e, bookmark.url)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
                 >
                   {bookmark.title}
                 </a>
