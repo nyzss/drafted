@@ -34,6 +34,7 @@ const updateBookmarkSchema = z.object({
 export type UpdateBookmarkRequest = z.infer<typeof updateBookmarkSchema>;
 
 const app = new Hono<HonoType>()
+
   .get(
     "/list",
     zValidator(
@@ -101,6 +102,19 @@ const app = new Hono<HonoType>()
       } satisfies SuccessResponse);
     },
   )
+  .get("/:id", zValidator("param", z.object({ id: z.string() })), async (c) => {
+    const { id } = c.req.valid("param");
+    const user = c.get("user")!;
+
+    const bookmark = await db
+      .select()
+      .from(bookmarksTable)
+      .where(
+        and(eq(bookmarksTable.id, id), eq(bookmarksTable.userId, user.id)),
+      );
+
+    return c.json(bookmark.length > 0 ? bookmark[0] : null);
+  })
   .post("/", zValidator("query", z.object({ url: z.string() })), async (c) => {
     const { url } = c.req.valid("query");
     const user = c.get("user")!;

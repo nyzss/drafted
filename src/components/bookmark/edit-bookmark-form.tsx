@@ -76,9 +76,12 @@ export function EditBookmarkForm({
 
       return data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success("Bookmark updated successfully");
-      queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["bookmarks"],
+      });
+
       onSuccess();
     },
     onError: (error) => {

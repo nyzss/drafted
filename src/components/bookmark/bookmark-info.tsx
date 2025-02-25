@@ -21,37 +21,36 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import type { ResBookmark } from "@/types/bookmark";
 import { useState } from "react";
 import { EditBookmarkForm } from "./edit-bookmark-form";
+import { useQuery } from "@tanstack/react-query";
+import { client } from "@/lib/client";
 
 interface BookmarkInfoProps {
-  bookmark: ResBookmark | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  id: string;
 }
 
-export function BookmarkInfo({
-  bookmark,
-  open,
-  onOpenChange,
-}: BookmarkInfoProps) {
+export function BookmarkInfo({ id, open, onOpenChange }: BookmarkInfoProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const { data: bookmark, isPending } = useQuery({
+    queryKey: ["bookmarks", id],
+    queryFn: async () => {
+      const resp = await client.api.bookmark[":id"].$get({
+        param: {
+          id,
+        },
+      });
 
-  if (!bookmark) {
-    return (
-      <div className="flex justify-center items-center h-full">
-        <Loader2 className="h-4 w-4 animate-spin" />
-        <span className="ml-2">Loading...</span>
-      </div>
-    );
-  }
+      const data = await resp.json();
+      if (data === null) {
+        throw new Error("Bookmark not found");
+      }
 
-  const createdDate =
-    bookmark.createdAt instanceof Date
-      ? bookmark.createdAt
-      : new Date(bookmark.createdAt);
-
+      return data;
+    },
+  });
   const handleEditClick = () => {
     setIsEditing(true);
   };
@@ -87,6 +86,11 @@ export function BookmarkInfo({
             onCancel={handleEditCancel}
             onSuccess={handleEditSuccess}
           />
+        ) : !bookmark || isPending ? (
+          <div className="flex justify-center items-center h-full">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span className="ml-2">Loading...</span>
+          </div>
         ) : (
           <>
             <div className="space-y-6 py-4">
@@ -139,7 +143,7 @@ export function BookmarkInfo({
                   <div>
                     <p className="text-sm font-medium">Added on</p>
                     <p className="text-sm text-muted-foreground">
-                      {format(createdDate, "PPP")}
+                      {format(new Date(bookmark.createdAt), "PPP")}
                     </p>
                   </div>
                 </div>

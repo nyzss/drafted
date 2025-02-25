@@ -129,7 +129,7 @@ export function BookmarkList() {
       </div>
 
       <BookmarkInfo
-        bookmark={selectedBookmark}
+        id={selectedBookmark?.id}
         open={infoDialogOpen}
         onOpenChange={setInfoDialogOpen}
       />
