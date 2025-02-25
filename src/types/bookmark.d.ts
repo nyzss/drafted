@@ -1,13 +1,4 @@
-export interface Bookmark {
-  id: string;
-  title: string;
-  url: string;
-  description?: string;
-  thumbnail?: string;
-  tags?: string[];
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { client } from "@/lib/client";
 
 export interface OpenGraphData {
   ogTitle?: string;
@@ -15,3 +6,7 @@ export interface OpenGraphData {
   ogImage?: Array<{ url: string }>;
   url?: string;
 }
+
+export type ResBookmark = InferResponseType<
+  typeof client.api.bookmark.list.$get
+>;

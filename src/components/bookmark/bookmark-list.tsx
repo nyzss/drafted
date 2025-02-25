@@ -8,6 +8,8 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/client";
+import { BookmarkInfo } from "./bookmark-info";
+import { ResBookmark } from "@/types/bookmark";
 
 export function BookmarkList() {
   const { data: bookmarks, isPending } = useQuery({
@@ -20,6 +22,23 @@ export function BookmarkList() {
     },
   });
   const [view, setView] = useState<"list" | "grid">("list");
+  const [selectedBookmark, setSelectedBookmark] = useState<ResBookmark | null>(
+    null,
+  );
+  const [infoDialogOpen, setInfoDialogOpen] = useState(false);
+
+  const handleBookmarkClick = (bookmark: ResBookmark) => {
+    setSelectedBookmark(bookmark);
+    setInfoDialogOpen(true);
+  };
+
+  const handleLinkClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    url: string,
+  ) => {
+    e.stopPropagation();
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
 
   if (isPending || !bookmarks) {
     return (
@@ -60,11 +79,12 @@ export function BookmarkList() {
           <div
             key={bookmark.id}
             className={cn(
-              "group rounded-lg border p-4 transition-colors hover:bg-muted/50",
+              "group rounded-lg border p-4 transition-colors hover:bg-muted/50 cursor-pointer",
               view === "list"
                 ? "flex items-start space-x-4"
                 : "flex flex-col space-y-2",
             )}
+            onClick={() => handleBookmarkClick(bookmark)}
           >
             {bookmark.image && (
               <div
@@ -89,6 +109,7 @@ export function BookmarkList() {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:underline"
+                  onClick={(e) => handleLinkClick(e, bookmark.url)}
                 >
                   {bookmark.title}
                 </a>
@@ -110,6 +131,12 @@ export function BookmarkList() {
           </div>
         )}
       </div>
+
+      <BookmarkInfo
+        bookmark={selectedBookmark}
+        open={infoDialogOpen}
+        onOpenChange={setInfoDialogOpen}
+      />
     </div>
   );
 }

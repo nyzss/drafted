@@ -11,7 +11,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "prepare": "husky"
+    "prepare": "husky",
+    "format": "prettier --write --ignore-unknown"
   },
   "lint-staged": {
     "**/*": "prettier --write --ignore-unknown"
