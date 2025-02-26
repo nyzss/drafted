@@ -9,6 +9,7 @@ import {
   Calendar,
   ExternalLink,
   Globe,
+  Tag,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,7 @@ import { client } from "@/lib/client";
 import { BookmarkInfo } from "./bookmark-info";
 import { ResSingleBookmark } from "@/types/bookmark";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 
 export function BookmarkList() {
   const { data: bookmarks, isPending } = useQuery({
@@ -159,6 +161,35 @@ export function BookmarkList() {
                   {bookmark.description}
                 </p>
               )}
+
+              {bookmark.tags && bookmark.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  <div className="flex items-center text-xs text-muted-foreground mr-0.5">
+                    <Tag className="h-3 w-3 mr-1" />
+                  </div>
+                  {bookmark.tags.slice(0, 3).map((tagItem) => (
+                    <Badge
+                      key={tagItem.tagId}
+                      variant="outline"
+                      className="text-xs py-0 px-1.5 bg-primary/5 hover:bg-primary/10 border-primary/10 dark:border-primary/20"
+                    >
+                      {tagItem.tag.icon && (
+                        <span className="mr-1">{tagItem.tag.icon}</span>
+                      )}
+                      {tagItem.tag.name}
+                    </Badge>
+                  ))}
+                  {bookmark.tags.length > 3 && (
+                    <Badge
+                      variant="outline"
+                      className="text-xs py-0 px-1.5 bg-muted/50 border-muted/50"
+                    >
+                      +{bookmark.tags.length - 3}
+                    </Badge>
+                  )}
+                </div>
+              )}
+
               <div className="flex items-center mt-3 text-xs text-muted-foreground">
                 <Calendar className="h-3.5 w-3.5 mr-1.5" />
                 <span>

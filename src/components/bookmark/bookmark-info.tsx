@@ -10,6 +10,8 @@ import {
   Loader2,
   Clock,
   AlertCircle,
+  Trash2,
+  Tag,
 } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -24,9 +26,22 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useState } from "react";
 import { EditBookmarkForm } from "./edit-bookmark-form";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { client } from "@/lib/client";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
+import { toast } from "sonner";
 
 interface BookmarkInfoProps {
   open: boolean;
@@ -35,6 +50,7 @@ interface BookmarkInfoProps {
 }
 
 export function BookmarkInfo({ id, open, onOpenChange }: BookmarkInfoProps) {
+  const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const {
     data: bookmark,
@@ -67,6 +83,35 @@ export function BookmarkInfo({ id, open, onOpenChange }: BookmarkInfoProps) {
 
   const handleEditSuccess = () => {
     setIsEditing(false);
+  };
+
+  const deleteBookmarkMutation = useMutation({
+    mutationFn: async () => {
+      const resp = await client.api.bookmark[":id"].$delete({
+        param: {
+          id,
+        },
+      });
+
+      if (!resp.ok) {
+        throw new Error("Failed to delete bookmark");
+      }
+
+      return resp.json();
+    },
+    onSuccess: async () => {
+      onOpenChange(false);
+
+      toast.success("Bookmark deleted successfully");
+
+      await queryClient.invalidateQueries({
+        queryKey: ["bookmarks"],
+      });
+    },
+  });
+
+  const handleDeleteBookmark = () => {
+    deleteBookmarkMutation.mutate();
   };
 
   return (
@@ -138,6 +183,29 @@ export function BookmarkInfo({ id, open, onOpenChange }: BookmarkInfoProps) {
                   </p>
                 )}
               </div>
+
+              {bookmark.tags && bookmark.tags.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center">
+                    <Tag className="h-4 w-4 mr-2 text-primary" />
+                    <h3 className="text-sm font-medium">Tags</h3>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {bookmark.tags.map((tagItem) => (
+                      <Badge
+                        key={tagItem.tagId}
+                        variant="outline"
+                        className="bg-primary/10 hover:bg-primary/20 text-foreground border-primary/20 dark:border-primary/30"
+                      >
+                        {tagItem.tag.icon && (
+                          <span className="mr-1">{tagItem.tag.icon}</span>
+                        )}
+                        {tagItem.tag.name}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <a
@@ -249,11 +317,46 @@ export function BookmarkInfo({ id, open, onOpenChange }: BookmarkInfoProps) {
               )}
             </div>
 
-            <DialogFooter className="p-6 pt-0">
+            <DialogFooter className="p-6 pt-0 flex flex-col sm:flex-row gap-2 justify-between">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="secondary"
+                    className="flex items-center group w-full sm:w-auto order-2 sm:order-1"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2 group-hover:animate-pulse" />
+                    Delete
+                  </Button>
+                </AlertDialogTrigger>
+
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Are you absolutely sure?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      your bookmark and remove it from your account.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeleteBookmark} asChild>
+                      <Button
+                        variant="destructive"
+                        className="bg-destructive hover:bg-destructive/80 transition-all cursor-pointer"
+                      >
+                        Continue
+                      </Button>
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+
               <Button
                 variant="outline"
                 onClick={handleEditClick}
-                className="flex items-center group hover:bg-primary hover:text-primary-foreground transition-all dark:border-border/70 dark:hover:bg-primary/90"
+                className="flex items-center group hover:bg-primary hover:text-primary-foreground transition-all dark:border-border/70 dark:hover:bg-primary/90 w-full sm:w-auto order-1 sm:order-2"
               >
                 <Edit className="h-4 w-4 mr-2 group-hover:animate-pulse" />
                 Edit Bookmark
