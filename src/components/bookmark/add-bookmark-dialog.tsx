@@ -146,13 +146,13 @@ export function AddBookmarkDialog() {
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <div className="absolute left-3 top-2.5 text-muted-foreground">
+                        <div className="absolute left-3 top-3 text-muted-foreground">
                           <Link2 className="h-4 w-4" />
                         </div>
                         <Input
                           className="pl-9 pr-9 h-10 bg-background border-input focus-visible:ring-1 transition-all"
                           placeholder="https://example.com"
-                          type="text"
+                          type="url"
                           {...field}
                         />
                         {field.value && (
@@ -176,7 +176,7 @@ export function AddBookmarkDialog() {
                 }
                 variant="outline"
                 size="sm"
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto h-10"
               >
                 {previewBookmarkMutation.isPending ? (
                   <div className="flex items-center">

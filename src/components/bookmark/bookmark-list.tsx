@@ -180,11 +180,13 @@ export function BookmarkList() {
         )}
       </div>
 
-      <BookmarkInfo
-        id={selectedBookmark?.id}
-        open={infoDialogOpen}
-        onOpenChange={setInfoDialogOpen}
-      />
+      {selectedBookmark && (
+        <BookmarkInfo
+          id={selectedBookmark?.id}
+          open={infoDialogOpen}
+          onOpenChange={setInfoDialogOpen}
+        />
+      )}
     </div>
   );
 }

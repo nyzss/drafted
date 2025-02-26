@@ -19,6 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { useState } from "react";
@@ -79,6 +80,11 @@ export function BookmarkInfo({ id, open, onOpenChange }: BookmarkInfoProps) {
             {isEditing ? "Edit Bookmark" : "Bookmark Details"}
           </DialogTitle>
         </DialogHeader>
+        <DialogDescription className="pl-6 ">
+          {isEditing
+            ? "Edit the bookmark details"
+            : "View the bookmark details"}
+        </DialogDescription>
 
         {isEditing ? (
           <EditBookmarkForm
