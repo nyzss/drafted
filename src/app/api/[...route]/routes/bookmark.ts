@@ -34,7 +34,6 @@ const updateBookmarkSchema = z.object({
 export type UpdateBookmarkRequest = z.infer<typeof updateBookmarkSchema>;
 
 const app = new Hono<HonoType>()
-
   .get(
     "/list",
     zValidator(
@@ -145,15 +144,13 @@ const app = new Hono<HonoType>()
     if (!res) {
       return c.json(
         {
-          success: false,
           message: "Couldn't add bookmark",
-        } satisfies ErrorResponse,
+        },
         400,
       );
     }
 
     return c.json({
-      success: true,
       message: "Bookmark added successfully",
     });
   })
@@ -178,7 +175,6 @@ const app = new Hono<HonoType>()
     if (!res || res.length === 0) {
       return c.json(
         {
-          success: false,
           message: "Couldn't update bookmark",
         },
         400,
@@ -186,9 +182,29 @@ const app = new Hono<HonoType>()
     }
 
     return c.json({
-      success: true,
       message: "Bookmark updated successfully",
     });
-  });
+  })
+  .delete(
+    "/:id",
+    zValidator("param", z.object({ id: z.string() })),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const user = c.get("user")!;
+
+      const res = await db
+        .delete(bookmarksTable)
+        .where(
+          and(eq(bookmarksTable.id, id), eq(bookmarksTable.userId, user.id)),
+        )
+        .returning();
+
+      if (!res || res.length === 0) {
+        return c.json({ message: "Failed to delete bookmark" }, 400);
+      }
+
+      return c.json({ message: "Bookmark deleted" });
+    },
+  );
 
 export default app;

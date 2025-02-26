@@ -70,7 +70,7 @@ export function EditBookmarkForm({
 
       const data = await response.json();
 
-      if (!data.success) {
+      if (!response.ok) {
         throw new Error(data.message || "Failed to update bookmark");
       }
 
