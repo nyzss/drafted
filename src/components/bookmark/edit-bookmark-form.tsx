@@ -3,9 +3,9 @@
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { client } from "@/lib/client";
-import { ResBookmark } from "@/types/bookmark";
+import { ResSingleBookmark } from "@/types/bookmark";
 import {
   Form,
   FormControl,
@@ -17,9 +17,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Loader2, Link2, FileText, ImageIcon, Lock, Save } from "lucide-react";
+import {
+  Loader2,
+  Link2,
+  FileText,
+  ImageIcon,
+  Lock,
+  Save,
+  Tag,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Checkbox } from "../ui/checkbox";
+import MultipleSelector from "../ui/multiselect";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -31,12 +40,20 @@ const formSchema = z.object({
     .optional()
     .or(z.literal("")),
   isPrivate: z.boolean().default(false),
+  tagIds: z
+    .array(
+      z.object({
+        label: z.string(),
+        value: z.string(),
+      }),
+    )
+    .optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 interface EditBookmarkFormProps {
-  bookmark: ResBookmark;
+  bookmark: ResSingleBookmark;
   onCancel: () => void;
   onSuccess: () => void;
 }
@@ -48,6 +65,26 @@ export function EditBookmarkForm({
 }: EditBookmarkFormProps) {
   const queryClient = useQueryClient();
 
+  const { data: tags, isPending: isLoadingTags } = useQuery({
+    queryKey: ["tags"],
+    queryFn: async () => {
+      const response = await client.api.tags.$get();
+      if (!response.ok) {
+        throw new Error("Failed to fetch tags");
+      }
+
+      const data = await response.json();
+      console.log(data);
+      return data;
+    },
+  });
+
+  const tagOptions =
+    tags?.map((tag) => ({
+      label: tag.name,
+      value: tag.id,
+    })) || [];
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -56,6 +93,11 @@ export function EditBookmarkForm({
       url: bookmark.url,
       image: bookmark.image || "",
       isPrivate: bookmark.isPrivate,
+      tagIds:
+        bookmark.tags?.map((tag) => ({
+          label: tag.tag.name,
+          value: tag.tagId,
+        })) || [],
     },
   });
 
@@ -65,6 +107,7 @@ export function EditBookmarkForm({
         json: {
           id: bookmark.id,
           ...values,
+          tagIds: values.tagIds?.map((tag) => tag.value) || [],
         },
       });
 
@@ -177,6 +220,46 @@ export function EditBookmarkForm({
                 />
               </FormControl>
               <FormMessage className="text-xs" />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="tagIds"
+          render={() => (
+            <FormItem>
+              <FormLabel className="flex items-center text-sm font-medium">
+                <Tag className="h-4 w-4 mr-2 text-primary" />
+                Tags
+              </FormLabel>
+              <FormControl>
+                <MultipleSelector
+                  commandProps={{
+                    label: "Select tags",
+                  }}
+                  value={form.watch("tagIds")}
+                  onChange={(e) =>
+                    form.setValue("tagIds", e, {
+                      shouldDirty: true,
+                    })
+                  }
+                  defaultOptions={tagOptions}
+                  options={tagOptions}
+                  hideClearAllButton
+                  hidePlaceholderWhenSelected
+                  emptyIndicator={
+                    <p className="text-center text-sm">No tags found</p>
+                  }
+                  className="bg-background border-input focus-visible:ring-1 transition-all dark:bg-muted/20 dark:border-border/70 dark:focus-visible:ring-primary/40"
+                />
+              </FormControl>
+              <FormMessage className="text-xs" />
+              <p className="text-xs text-muted-foreground mt-1">
+                {isLoadingTags
+                  ? "Loading tags..."
+                  : "Select tags to categorize your bookmark"}
+              </p>
             </FormItem>
           )}
         />

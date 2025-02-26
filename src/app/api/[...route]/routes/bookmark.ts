@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { db } from "@/db/db";
-import { bookmarksTable } from "@/db/schema";
+import { bookmarksTable, bookmarkToTagsTable } from "@/db/schema";
 import { getOpenGraphData } from "@/utils";
 import { OpenGraphData } from "@/types/bookmark";
 import type { HonoType } from "../route";
@@ -29,6 +29,7 @@ const updateBookmarkSchema = z.object({
   image: z.string().url("Please enter a valid image URL").optional().nullable(),
   isPrivate: z.boolean().optional(),
   folderId: z.string().optional().nullable(),
+  tagIds: z.array(z.string()).optional().nullable(),
 });
 
 export type UpdateBookmarkRequest = z.infer<typeof updateBookmarkSchema>;
@@ -50,24 +51,28 @@ const app = new Hono<HonoType>()
       const user = c.get("user")!;
       const { offset = 0, limit = 10, search } = c.req.valid("query") || {};
 
-      const bookmarks = await db
-        .select()
-        .from(bookmarksTable)
-        .where(
-          and(
-            eq(bookmarksTable.userId, user.id),
-            search
-              ? or(
-                  ilike(bookmarksTable.title, `%${search}%`),
-                  ilike(bookmarksTable.url, `%${search}%`),
-                  ilike(bookmarksTable.description, `%${search}%`),
-                )
-              : undefined,
-          ),
-        )
-        .limit(limit)
-        .offset(offset)
-        .orderBy(desc(bookmarksTable.createdAt));
+      const bookmarks = await db.query.bookmarksTable.findMany({
+        where: and(
+          eq(bookmarksTable.userId, user.id),
+          search
+            ? or(
+                ilike(bookmarksTable.title, `%${search}%`),
+                ilike(bookmarksTable.url, `%${search}%`),
+                ilike(bookmarksTable.description, `%${search}%`),
+              )
+            : undefined,
+        ),
+        with: {
+          tags: {
+            with: {
+              tag: true,
+            },
+          },
+        },
+        orderBy: desc(bookmarksTable.createdAt),
+        limit: limit,
+        offset: offset,
+      });
 
       return c.json({
         success: true,
@@ -105,14 +110,22 @@ const app = new Hono<HonoType>()
     const { id } = c.req.valid("param");
     const user = c.get("user")!;
 
-    const bookmark = await db
-      .select()
-      .from(bookmarksTable)
-      .where(
-        and(eq(bookmarksTable.id, id), eq(bookmarksTable.userId, user.id)),
-      );
+    const bookmark = await db.query.bookmarksTable.findFirst({
+      where: and(eq(bookmarksTable.id, id), eq(bookmarksTable.userId, user.id)),
+      with: {
+        tags: {
+          with: {
+            tag: true,
+          },
+        },
+      },
+    });
 
-    return c.json(bookmark.length > 0 ? bookmark[0] : null);
+    if (!bookmark) {
+      return c.json(undefined, 404);
+    }
+
+    return c.json(bookmark);
   })
   .post("/", zValidator("query", z.object({ url: z.string() })), async (c) => {
     const { url } = c.req.valid("query");
@@ -155,7 +168,7 @@ const app = new Hono<HonoType>()
     });
   })
   .put("/", zValidator("json", updateBookmarkSchema), async (c) => {
-    const updateData = c.req.valid("json");
+    const { tagIds, ...updateData } = c.req.valid("json");
     const user = c.get("user")!;
 
     const res = await db
@@ -171,6 +184,24 @@ const app = new Hono<HonoType>()
         ),
       )
       .returning();
+
+    if (tagIds) {
+      // TODO: review here, might be improved
+      // first delete existing tags for this bookmark
+      await db
+        .delete(bookmarkToTagsTable)
+        .where(eq(bookmarkToTagsTable.bookmarkId, updateData.id));
+
+      // then insert the new tags
+      if (tagIds.length > 0) {
+        await db.insert(bookmarkToTagsTable).values(
+          tagIds.map((tagId) => ({
+            bookmarkId: updateData.id,
+            tagId,
+          })),
+        );
+      }
+    }
 
     if (!res || res.length === 0) {
       return c.json(

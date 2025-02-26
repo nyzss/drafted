@@ -77,8 +77,8 @@ export function AddBookmarkDialog() {
         query: { url },
       });
       const data = await res.json();
-      if (!data.success) {
-        throw new Error(data.message);
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to add bookmark");
       }
       return data.message;
     },

@@ -1,4 +1,5 @@
 import { client } from "@/lib/client";
+import { InferResponseType } from "hono";
 
 export interface OpenGraphData {
   ogTitle?: string;
@@ -10,3 +11,5 @@ export interface OpenGraphData {
 export type ResBookmark = InferResponseType<
   typeof client.api.bookmark.list.$get
 >;
+
+export type ResSingleBookmark = ResBookmark["bookmarks"][number];

@@ -9,7 +9,7 @@ import {
   Edit,
   Loader2,
   Clock,
-  Folder,
+  AlertCircle,
 } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -36,7 +36,11 @@ interface BookmarkInfoProps {
 
 export function BookmarkInfo({ id, open, onOpenChange }: BookmarkInfoProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const { data: bookmark, isPending } = useQuery({
+  const {
+    data: bookmark,
+    isPending,
+    isError,
+  } = useQuery({
     queryKey: ["bookmarks", id],
     queryFn: async () => {
       const resp = await client.api.bookmark[":id"].$get({
@@ -46,8 +50,8 @@ export function BookmarkInfo({ id, open, onOpenChange }: BookmarkInfoProps) {
       });
 
       const data = await resp.json();
-      if (data === null) {
-        throw new Error("Bookmark not found");
+      if (!resp.ok) {
+        throw new Error("Failed to fetch bookmark");
       }
 
       return data;
@@ -87,7 +91,7 @@ export function BookmarkInfo({ id, open, onOpenChange }: BookmarkInfoProps) {
             : "View the bookmark details"}
         </DialogDescription>
 
-        {isEditing ? (
+        {isEditing && bookmark ? (
           <EditBookmarkForm
             bookmark={bookmark}
             onCancel={handleEditCancel}
@@ -99,6 +103,15 @@ export function BookmarkInfo({ id, open, onOpenChange }: BookmarkInfoProps) {
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
               <span className="text-sm text-muted-foreground">
                 Loading bookmark details...
+              </span>
+            </div>
+          </div>
+        ) : isError ? (
+          <div className="flex justify-center items-center h-40 w-full">
+            <div className="flex flex-col items-center gap-2">
+              <AlertCircle className="h-6 w-6 text-red-500" />
+              <span className="text-sm text-muted-foreground">
+                Failed to fetch bookmark details
               </span>
             </div>
           </div>
@@ -182,20 +195,6 @@ export function BookmarkInfo({ id, open, onOpenChange }: BookmarkInfoProps) {
                   </div>
                 </div>
               </div>
-
-              {bookmark.folderId && (
-                <div className="flex items-center space-x-3 bg-muted/30 p-4 rounded-lg dark:backdrop-blur-sm">
-                  <div className="bg-primary/10 p-2 rounded-full">
-                    <Folder className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Folder</p>
-                    <p className="text-sm text-muted-foreground">
-                      {bookmark.folderId}
-                    </p>
-                  </div>
-                </div>
-              )}
 
               {(bookmark.ogType ||
                 bookmark.ogTitle ||
