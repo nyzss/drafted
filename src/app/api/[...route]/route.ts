@@ -4,6 +4,7 @@ import bookmarkRouter from "./routes/bookmark";
 import aiRouter from "./routes/ai";
 import { auth } from "@/lib/auth";
 import { protectedMiddleware } from "./middleware/protected";
+import tagRouter from "./routes/tags";
 
 export const runtime = "edge";
 export interface HonoType extends Env {
@@ -37,8 +38,10 @@ const app = new Hono<HonoType>()
   })
   .use("/ai/*", protectedMiddleware)
   .use("/bookmark/*", protectedMiddleware)
+  .use("/tags/*", protectedMiddleware)
   .route("/ai", aiRouter)
-  .route("/bookmark", bookmarkRouter);
+  .route("/bookmark", bookmarkRouter)
+  .route("/tags", tagRouter);
 
 export type AppType = typeof app;
 
