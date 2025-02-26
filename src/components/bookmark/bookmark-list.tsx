@@ -17,7 +17,7 @@ import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/client";
 import { BookmarkInfo } from "./bookmark-info";
-import { ResBookmark } from "@/types/bookmark";
+import { ResSingleBookmark } from "@/types/bookmark";
 import { Input } from "@/components/ui/input";
 
 export function BookmarkList() {
@@ -31,12 +31,11 @@ export function BookmarkList() {
     },
   });
   const [view, setView] = useState<"list" | "grid">("list");
-  const [selectedBookmark, setSelectedBookmark] = useState<ResBookmark | null>(
-    null,
-  );
+  const [selectedBookmark, setSelectedBookmark] =
+    useState<ResSingleBookmark | null>(null);
   const [infoDialogOpen, setInfoDialogOpen] = useState(false);
 
-  const handleBookmarkClick = (bookmark: ResBookmark) => {
+  const handleBookmarkClick = (bookmark: ResSingleBookmark) => {
     setSelectedBookmark(bookmark);
     setInfoDialogOpen(true);
   };

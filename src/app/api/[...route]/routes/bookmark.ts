@@ -139,9 +139,9 @@ const app = new Hono<HonoType>()
     const res = await db
       .insert(bookmarksTable)
       .values({
+        url,
         userId: user.id,
         title: data.result.ogTitle || url,
-        url: data.result.ogUrl || url,
         description: data.result.ogDescription || null,
         image: ogImage,
         ogType: data.result.ogType || null,
