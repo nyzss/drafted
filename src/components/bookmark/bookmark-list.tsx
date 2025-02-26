@@ -61,14 +61,16 @@ export function BookmarkList() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h2 className="text-3xl font-bold tracking-tight">Bookmarks</h2>
+        <h2 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80 dark:from-foreground dark:to-foreground/70">
+          Bookmarks
+        </h2>
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Search bookmarks..."
-              className="pl-9 w-full bg-background border-muted"
+              className="pl-9 w-full bg-background border-muted dark:bg-muted/20 dark:border-border/70 dark:focus-visible:ring-primary/40"
             />
           </div>
           <ToggleGroup
@@ -77,7 +79,7 @@ export function BookmarkList() {
             onValueChange={(value) =>
               value && setView(value as "list" | "grid")
             }
-            className="border rounded-md"
+            className="border rounded-md dark:border-border/70"
           >
             <ToggleGroupItem
               value="list"
@@ -109,7 +111,7 @@ export function BookmarkList() {
           <div
             key={bookmark.id}
             className={cn(
-              "group rounded-lg border bg-card shadow-sm hover:shadow-md transition-all duration-200 hover:border-primary/20",
+              "group rounded-lg border bg-card shadow-sm hover:shadow-md transition-all duration-200 hover:border-primary/20 dark:backdrop-blur-sm dark:hover:border-primary/30",
               view === "list"
                 ? "flex items-start p-4 space-x-4"
                 : "flex flex-col p-0 overflow-hidden",
@@ -168,7 +170,7 @@ export function BookmarkList() {
           </div>
         ))}
         {bookmarks.length === 0 && (
-          <div className="flex flex-col justify-center items-center h-64 w-full border rounded-lg bg-muted/20 p-6">
+          <div className="flex flex-col justify-center items-center h-64 w-full border rounded-lg bg-muted/20 p-6 dark:border-border/70 dark:backdrop-blur-sm">
             <Globe className="h-12 w-12 text-muted-foreground/50 mb-4" />
             <p className="text-muted-foreground text-center">
               No bookmarks found

@@ -26,6 +26,7 @@ import { useState } from "react";
 import { EditBookmarkForm } from "./edit-bookmark-form";
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/lib/client";
+import { cn } from "@/lib/utils";
 
 interface BookmarkInfoProps {
   open: boolean;
@@ -74,13 +75,13 @@ export function BookmarkInfo({ id, open, onOpenChange }: BookmarkInfoProps) {
         onOpenChange(newOpen);
       }}
     >
-      <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto p-0">
+      <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto p-0 backdrop-blur-sm bg-background/95 dark:bg-background/90 border-border/70">
         <DialogHeader className="p-6 pb-0">
           <DialogTitle className="text-xl font-semibold">
             {isEditing ? "Edit Bookmark" : "Bookmark Details"}
           </DialogTitle>
         </DialogHeader>
-        <DialogDescription className="pl-6 ">
+        <DialogDescription className="px-6 text-muted-foreground">
           {isEditing
             ? "Edit the bookmark details"
             : "View the bookmark details"}
@@ -105,7 +106,7 @@ export function BookmarkInfo({ id, open, onOpenChange }: BookmarkInfoProps) {
           <>
             <div className="space-y-6 p-6 pt-2">
               {bookmark.image && (
-                <div className="overflow-hidden rounded-lg aspect-video w-full shadow-sm">
+                <div className="overflow-hidden rounded-lg aspect-video w-full shadow-sm dark:shadow-md">
                   <img
                     src={bookmark.image}
                     alt={bookmark.title}
@@ -141,14 +142,19 @@ export function BookmarkInfo({ id, open, onOpenChange }: BookmarkInfoProps) {
                     Visit Website
                   </Button>
                 </a>
-                <div className="flex-1 overflow-hidden bg-muted/50 rounded-md px-3 py-2">
+                <div className="flex-1 overflow-hidden bg-muted/50 rounded-md px-3 py-2 dark:backdrop-blur-sm">
                   <p className="text-sm text-muted-foreground truncate text-wrap break-all">
                     {bookmark.url}
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-muted/30 p-4 rounded-lg">
+              <div
+                className={cn(
+                  "grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-lg",
+                  "bg-muted/30 dark:bg-muted/30 dark:backdrop-blur-sm",
+                )}
+              >
                 <div className="flex items-center space-x-3">
                   <div className="bg-primary/10 p-2 rounded-full">
                     <Clock className="h-4 w-4 text-primary" />
@@ -178,7 +184,7 @@ export function BookmarkInfo({ id, open, onOpenChange }: BookmarkInfoProps) {
               </div>
 
               {bookmark.folderId && (
-                <div className="flex items-center space-x-3 bg-muted/30 p-4 rounded-lg">
+                <div className="flex items-center space-x-3 bg-muted/30 p-4 rounded-lg dark:backdrop-blur-sm">
                   <div className="bg-primary/10 p-2 rounded-full">
                     <Folder className="h-4 w-4 text-primary" />
                   </div>
@@ -195,14 +201,14 @@ export function BookmarkInfo({ id, open, onOpenChange }: BookmarkInfoProps) {
                 bookmark.ogTitle ||
                 bookmark.ogDescription) && (
                 <>
-                  <Separator className="my-4" />
+                  <Separator className="my-4 dark:bg-border/40" />
                   <div className="space-y-4">
                     <h3 className="text-lg font-medium flex items-center">
                       <Globe className="h-4 w-4 mr-2 text-primary" />
                       Metadata
                     </h3>
 
-                    <div className="bg-muted/30 p-4 rounded-lg space-y-4">
+                    <div className="bg-muted/30 p-4 rounded-lg space-y-4 dark:backdrop-blur-sm">
                       {bookmark.ogType && (
                         <div className="flex items-center space-x-2">
                           <div className="w-2 h-2 rounded-full bg-primary"></div>
@@ -248,7 +254,7 @@ export function BookmarkInfo({ id, open, onOpenChange }: BookmarkInfoProps) {
               <Button
                 variant="outline"
                 onClick={handleEditClick}
-                className="flex items-center group hover:bg-primary hover:text-primary-foreground transition-all"
+                className="flex items-center group hover:bg-primary hover:text-primary-foreground transition-all dark:border-border/70 dark:hover:bg-primary/90"
               >
                 <Edit className="h-4 w-4 mr-2 group-hover:animate-pulse" />
                 Edit Bookmark

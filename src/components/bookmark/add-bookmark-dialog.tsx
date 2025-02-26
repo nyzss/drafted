@@ -120,7 +120,7 @@ export function AddBookmarkDialog() {
           Add Bookmark
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[525px] p-0">
+      <DialogContent className="sm:max-w-[525px] p-0 backdrop-blur-sm bg-background/95 dark:bg-background/90 border-border/70">
         <DialogHeader className="p-6 pb-2">
           <DialogTitle className="text-xl font-semibold flex items-center">
             <BookmarkPlus className="h-5 w-5 mr-2 text-primary" />
@@ -150,7 +150,7 @@ export function AddBookmarkDialog() {
                           <Link2 className="h-4 w-4" />
                         </div>
                         <Input
-                          className="pl-9 pr-9 h-10 bg-background border-input focus-visible:ring-1 transition-all"
+                          className="pl-9 pr-9 h-10 bg-background border-input focus-visible:ring-1 transition-all dark:bg-muted/20 dark:border-border/70 dark:focus-visible:ring-primary/40"
                           placeholder="https://example.com"
                           type="url"
                           {...field}
@@ -176,7 +176,7 @@ export function AddBookmarkDialog() {
                 }
                 variant="outline"
                 size="sm"
-                className="w-full sm:w-auto h-10"
+                className="w-full sm:w-auto h-10 dark:border-border/70 dark:hover:bg-primary/10 dark:hover:text-primary"
               >
                 {previewBookmarkMutation.isPending ? (
                   <div className="flex items-center">
@@ -200,14 +200,14 @@ export function AddBookmarkDialog() {
           <Button
             variant="outline"
             onClick={() => setOpen(false)}
-            className="w-full sm:w-auto order-2 sm:order-1"
+            className="w-full sm:w-auto order-2 sm:order-1 dark:border-border/70 dark:hover:bg-muted/30"
           >
             Cancel
           </Button>
           <Button
             onClick={handleAddBookmark}
             disabled={!form.formState.isValid || addBookmarkMutation.isPending}
-            className="w-full sm:w-auto order-1 sm:order-2 gap-2"
+            className="w-full sm:w-auto order-1 sm:order-2 gap-2 dark:hover:bg-primary/90"
           >
             {addBookmarkMutation.isPending ? (
               <>

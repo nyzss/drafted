@@ -111,7 +111,7 @@ export function EditBookmarkForm({
               <FormControl>
                 <Input
                   {...field}
-                  className="h-10 bg-background border-input focus-visible:ring-1 transition-all"
+                  className="h-10 bg-background border-input focus-visible:ring-1 transition-all dark:bg-muted/20 dark:border-border/70 dark:focus-visible:ring-primary/40"
                 />
               </FormControl>
               <FormMessage className="text-xs" />
@@ -131,7 +131,7 @@ export function EditBookmarkForm({
               <FormControl>
                 <Input
                   {...field}
-                  className="h-10 bg-background border-input focus-visible:ring-1 transition-all"
+                  className="h-10 bg-background border-input focus-visible:ring-1 transition-all dark:bg-muted/20 dark:border-border/70 dark:focus-visible:ring-primary/40"
                 />
               </FormControl>
               <FormMessage className="text-xs" />
@@ -152,7 +152,7 @@ export function EditBookmarkForm({
                 <Textarea
                   {...field}
                   placeholder="Enter a description (optional)"
-                  className="resize-none bg-background border-input focus-visible:ring-1 transition-all min-h-[80px]"
+                  className="resize-none bg-background border-input focus-visible:ring-1 transition-all min-h-[80px] dark:bg-muted/20 dark:border-border/70 dark:focus-visible:ring-primary/40"
                 />
               </FormControl>
               <FormMessage className="text-xs" />
@@ -173,7 +173,7 @@ export function EditBookmarkForm({
                 <Input
                   {...field}
                   placeholder="https://example.com/image.jpg (optional)"
-                  className="h-10 bg-background border-input focus-visible:ring-1 transition-all"
+                  className="h-10 bg-background border-input focus-visible:ring-1 transition-all dark:bg-muted/20 dark:border-border/70 dark:focus-visible:ring-primary/40"
                 />
               </FormControl>
               <FormMessage className="text-xs" />
@@ -186,11 +186,11 @@ export function EditBookmarkForm({
           name="isPrivate"
           render={({ field }) => (
             <FormItem>
-              <div className="border-input has-[data-state=checked]:border-ring relative flex w-full items-start gap-3 rounded-md border p-4 shadow-xs outline-none">
+              <div className="border-input has-[data-state=checked]:border-ring relative flex w-full items-start gap-3 rounded-md border p-4 shadow-xs outline-none dark:border-border/70 dark:has-[data-state=checked]:border-primary/50 dark:bg-muted/20 dark:backdrop-blur-sm">
                 <FormControl>
                   <Checkbox
                     id="private-bookmark"
-                    className="order-1 mt-1 after:absolute after:inset-0"
+                    className="order-1 mt-1 after:absolute after:inset-0 dark:data-[state=checked]:bg-primary dark:data-[state=checked]:text-primary-foreground"
                     checked={field.value}
                     onCheckedChange={field.onChange}
                     aria-describedby="private-bookmark-description"
@@ -222,7 +222,7 @@ export function EditBookmarkForm({
             variant="outline"
             onClick={onCancel}
             disabled={updateBookmarkMutation.isPending}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto dark:border-border/70 dark:hover:bg-muted/30"
           >
             Cancel
           </Button>
@@ -231,7 +231,7 @@ export function EditBookmarkForm({
             disabled={
               !form.formState.isDirty || updateBookmarkMutation.isPending
             }
-            className="w-full sm:w-auto gap-2 group"
+            className="w-full sm:w-auto gap-2 group dark:hover:bg-primary/90"
           >
             {updateBookmarkMutation.isPending ? (
               <>

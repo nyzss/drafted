@@ -9,7 +9,7 @@ export default function PreviewBookmark({
   preview: OpenGraphData;
 }) {
   return (
-    <div className="rounded-lg border shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden bg-card">
+    <div className="rounded-lg border shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden bg-card dark:backdrop-blur-sm dark:border-border/70">
       {preview.ogImage?.[0]?.url ? (
         <div className="aspect-video w-full overflow-hidden">
           <img
