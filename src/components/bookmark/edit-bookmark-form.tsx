@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, Link2, FileText, ImageIcon, Lock, Save } from "lucide-react";
 import { toast } from "sonner";
 
 const formSchema = z.object({
@@ -98,17 +98,23 @@ export function EditBookmarkForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 p-6">
         <FormField
           control={form.control}
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Title</FormLabel>
+              <FormLabel className="flex items-center text-sm font-medium">
+                <FileText className="h-4 w-4 mr-2 text-primary" />
+                Title
+              </FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input
+                  {...field}
+                  className="h-10 bg-background border-input focus-visible:ring-1 transition-all"
+                />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-xs" />
             </FormItem>
           )}
         />
@@ -118,11 +124,17 @@ export function EditBookmarkForm({
           name="url"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>URL</FormLabel>
+              <FormLabel className="flex items-center text-sm font-medium">
+                <Link2 className="h-4 w-4 mr-2 text-primary" />
+                URL
+              </FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input
+                  {...field}
+                  className="h-10 bg-background border-input focus-visible:ring-1 transition-all"
+                />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-xs" />
             </FormItem>
           )}
         />
@@ -132,16 +144,18 @@ export function EditBookmarkForm({
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel className="flex items-center text-sm font-medium">
+                <FileText className="h-4 w-4 mr-2 text-primary" />
+                Description
+              </FormLabel>
               <FormControl>
                 <Textarea
                   {...field}
                   placeholder="Enter a description (optional)"
-                  className="resize-none"
-                  rows={3}
+                  className="resize-none bg-background border-input focus-visible:ring-1 transition-all min-h-[80px]"
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-xs" />
             </FormItem>
           )}
         />
@@ -151,14 +165,18 @@ export function EditBookmarkForm({
           name="image"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Image URL</FormLabel>
+              <FormLabel className="flex items-center text-sm font-medium">
+                <ImageIcon className="h-4 w-4 mr-2 text-primary" />
+                Image URL
+              </FormLabel>
               <FormControl>
                 <Input
                   {...field}
                   placeholder="https://example.com/image.jpg (optional)"
+                  className="h-10 bg-background border-input focus-visible:ring-1 transition-all"
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-xs" />
             </FormItem>
           )}
         />
@@ -167,9 +185,12 @@ export function EditBookmarkForm({
           control={form.control}
           name="isPrivate"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-              <div className="space-y-0.5">
-                <FormLabel className="text-base">Private Bookmark</FormLabel>
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 bg-muted/20 hover:bg-muted/30 transition-colors">
+              <div className="space-y-1">
+                <FormLabel className="text-base flex items-center">
+                  <Lock className="h-4 w-4 mr-2 text-primary" />
+                  Private Bookmark
+                </FormLabel>
                 <p className="text-sm text-muted-foreground">
                   Make this bookmark visible only to you
                 </p>
@@ -178,18 +199,20 @@ export function EditBookmarkForm({
                 <Switch
                   checked={field.value}
                   onCheckedChange={field.onChange}
+                  className="data-[state=checked]:bg-primary"
                 />
               </FormControl>
             </FormItem>
           )}
         />
 
-        <div className="flex justify-end space-x-2 pt-4">
+        <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2">
           <Button
             type="button"
             variant="outline"
             onClick={onCancel}
             disabled={updateBookmarkMutation.isPending}
+            className="w-full sm:w-auto"
           >
             Cancel
           </Button>
@@ -198,14 +221,18 @@ export function EditBookmarkForm({
             disabled={
               !form.formState.isDirty || updateBookmarkMutation.isPending
             }
+            className="w-full sm:w-auto gap-2 group"
           >
             {updateBookmarkMutation.isPending ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
                 Saving...
               </>
             ) : (
-              "Save Changes"
+              <>
+                <Save className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                Save Changes
+              </>
             )}
           </Button>
         </div>

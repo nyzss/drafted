@@ -3,13 +3,13 @@
 
 import {
   ExternalLink,
-  Calendar,
-  Tag,
   Globe,
   Eye,
   EyeOff,
   Edit,
   Loader2,
+  Clock,
+  Folder,
 } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -73,9 +73,9 @@ export function BookmarkInfo({ id, open, onOpenChange }: BookmarkInfoProps) {
         onOpenChange(newOpen);
       }}
     >
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="flex flex-row items-center justify-between">
-          <DialogTitle className="text-xl">
+      <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto p-0">
+        <DialogHeader className="p-6 pb-0">
+          <DialogTitle className="text-xl font-semibold">
             {isEditing ? "Edit Bookmark" : "Bookmark Details"}
           </DialogTitle>
         </DialogHeader>
@@ -87,59 +87,66 @@ export function BookmarkInfo({ id, open, onOpenChange }: BookmarkInfoProps) {
             onSuccess={handleEditSuccess}
           />
         ) : !bookmark || isPending ? (
-          <div className="flex justify-center items-center h-full">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <span className="ml-2">Loading...</span>
+          <div className="flex justify-center items-center h-40 w-full">
+            <div className="flex flex-col items-center gap-2">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              <span className="text-sm text-muted-foreground">
+                Loading bookmark details...
+              </span>
+            </div>
           </div>
         ) : (
           <>
-            <div className="space-y-6 py-4">
+            <div className="space-y-6 p-6 pt-2">
               {bookmark.image && (
-                <div className="overflow-hidden rounded-md aspect-video w-full">
+                <div className="overflow-hidden rounded-lg aspect-video w-full shadow-sm">
                   <img
                     src={bookmark.image}
                     alt={bookmark.title}
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-cover transition-transform hover:scale-105 duration-500"
                   />
                 </div>
               )}
 
               <div className="space-y-2">
-                <h2 className="text-2xl font-semibold">{bookmark.title}</h2>
+                <h2 className="text-2xl font-semibold tracking-tight">
+                  {bookmark.title}
+                </h2>
                 {bookmark.description && (
-                  <p className="text-muted-foreground">
+                  <p className="text-muted-foreground leading-relaxed">
                     {bookmark.description}
                   </p>
                 )}
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <a
                   href={bookmark.url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="w-full sm:w-auto"
                 >
                   <Button
-                    variant="outline"
+                    variant="default"
                     size="sm"
-                    className="flex items-center cursor-pointer"
+                    className="flex items-center w-full sm:w-auto group transition-all"
                   >
-                    <ExternalLink className="h-4 w-4 mr-2" />
+                    <ExternalLink className="h-4 w-4 mr-2 group-hover:translate-x-0.5 transition-transform" />
                     Visit Website
                   </Button>
                 </a>
-                <div className="flex-1 overflow-hidden">
+                <div className="flex-1 overflow-hidden bg-muted/50 rounded-md px-3 py-2">
                   <p className="text-sm text-muted-foreground truncate text-wrap break-all">
                     {bookmark.url}
                   </p>
                 </div>
               </div>
 
-              <Separator />
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center space-x-2">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-muted/30 p-4 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="bg-primary/10 p-2 rounded-full">
+                    <Clock className="h-4 w-4 text-primary" />
+                  </div>
                   <div>
                     <p className="text-sm font-medium">Added on</p>
                     <p className="text-sm text-muted-foreground">
@@ -147,12 +154,14 @@ export function BookmarkInfo({ id, open, onOpenChange }: BookmarkInfoProps) {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  {bookmark.isPrivate ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                  )}
+                <div className="flex items-center space-x-3">
+                  <div className="bg-primary/10 p-2 rounded-full">
+                    {bookmark.isPrivate ? (
+                      <EyeOff className="h-4 w-4 text-primary" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-primary" />
+                    )}
+                  </div>
                   <div>
                     <p className="text-sm font-medium">Visibility</p>
                     <p className="text-sm text-muted-foreground">
@@ -163,8 +172,10 @@ export function BookmarkInfo({ id, open, onOpenChange }: BookmarkInfoProps) {
               </div>
 
               {bookmark.folderId && (
-                <div className="flex items-center space-x-2">
-                  <Tag className="h-4 w-4 text-muted-foreground" />
+                <div className="flex items-center space-x-3 bg-muted/30 p-4 rounded-lg">
+                  <div className="bg-primary/10 p-2 rounded-full">
+                    <Folder className="h-4 w-4 text-primary" />
+                  </div>
                   <div>
                     <p className="text-sm font-medium">Folder</p>
                     <p className="text-sm text-muted-foreground">
@@ -178,51 +189,62 @@ export function BookmarkInfo({ id, open, onOpenChange }: BookmarkInfoProps) {
                 bookmark.ogTitle ||
                 bookmark.ogDescription) && (
                 <>
-                  <Separator />
+                  <Separator className="my-4" />
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium">Metadata</h3>
+                    <h3 className="text-lg font-medium flex items-center">
+                      <Globe className="h-4 w-4 mr-2 text-primary" />
+                      Metadata
+                    </h3>
 
-                    {bookmark.ogType && (
-                      <div className="flex items-center space-x-2">
-                        <Globe className="h-4 w-4 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium">Type</p>
-                          <p className="text-sm text-muted-foreground">
-                            {bookmark.ogType}
-                          </p>
+                    <div className="bg-muted/30 p-4 rounded-lg space-y-4">
+                      {bookmark.ogType && (
+                        <div className="flex items-center space-x-2">
+                          <div className="w-2 h-2 rounded-full bg-primary"></div>
+                          <div>
+                            <p className="text-sm font-medium">Type</p>
+                            <p className="text-sm text-muted-foreground">
+                              {bookmark.ogType}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
-                    {bookmark.ogTitle && (
-                      <div>
-                        <p className="text-sm font-medium">Title</p>
-                        <p className="text-sm text-muted-foreground">
-                          {bookmark.ogTitle}
-                        </p>
-                      </div>
-                    )}
+                      {bookmark.ogTitle && (
+                        <div className="flex items-center space-x-2">
+                          <div className="w-2 h-2 rounded-full bg-primary"></div>
+                          <div>
+                            <p className="text-sm font-medium">Title</p>
+                            <p className="text-sm text-muted-foreground">
+                              {bookmark.ogTitle}
+                            </p>
+                          </div>
+                        </div>
+                      )}
 
-                    {bookmark.ogDescription && (
-                      <div>
-                        <p className="text-sm font-medium">Description</p>
-                        <p className="text-sm text-muted-foreground">
-                          {bookmark.ogDescription}
-                        </p>
-                      </div>
-                    )}
+                      {bookmark.ogDescription && (
+                        <div className="flex items-center space-x-2">
+                          <div className="w-2 h-2 rounded-full bg-primary"></div>
+                          <div>
+                            <p className="text-sm font-medium">Description</p>
+                            <p className="text-sm text-muted-foreground">
+                              {bookmark.ogDescription}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </>
               )}
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="p-6 pt-0">
               <Button
                 variant="outline"
                 onClick={handleEditClick}
-                className="flex items-center"
+                className="flex items-center group hover:bg-primary hover:text-primary-foreground transition-all"
               >
-                <Edit className="h-4 w-4 mr-2" />
+                <Edit className="h-4 w-4 mr-2 group-hover:animate-pulse" />
                 Edit Bookmark
               </Button>
             </DialogFooter>
