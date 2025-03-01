@@ -1,16 +1,18 @@
 import { Hono } from "hono";
 import { streamText } from "ai";
-import { Message } from "ai";
-import { openai } from "@ai-sdk/openai";
+import { CoreMessage } from "ai";
+import { openai } from "@/lib/llm";
 
 const aiRouter = new Hono()
   .post("/chat", async (c) => {
-    const { messages }: { messages: Message[] } = await c.req.json();
+    const { messages }: { messages: CoreMessage[] } = await c.req.json();
+
     const resp = streamText({
       model: openai("gpt-4o-mini"),
       system: `
-            You are an assistant that will help user find their bookmarks
-        `,
+        You are a helpful assistant that can help users with their questions.
+        End all your responses with this emoji: 🔖
+      `,
       messages,
     });
 
