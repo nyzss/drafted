@@ -6,7 +6,8 @@ import { auth } from "@/lib/auth";
 import { protectedMiddleware } from "./middleware/protected";
 import tagRouter from "./routes/tags";
 
-export const runtime = "edge";
+// export const runtime = "edge";
+
 export interface HonoType extends Env {
   Variables: {
     user: typeof auth.$Infer.Session.user | null;
