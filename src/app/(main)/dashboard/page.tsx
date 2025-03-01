@@ -1,20 +1,26 @@
 "use client";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { client } from "@/lib/client";
 import { useState } from "react";
+import { toast } from "sonner";
+import { useChat } from "@ai-sdk/react";
+import { Input } from "@/components/ui/input";
 
 export default function DashboardPage() {
-  // const { messages, input, handleInputChange, handleSubmit } = useChat({
-  //   api: "/api/ai/chat",
-  // });
-
-  // const { messages, input, handleInputChange, handleSubmit } = useChat({
-  //   api: "/api/ai/bookmark",
-  // });
+  const {
+    messages,
+    input,
+    setInput,
+    handleSubmit: handleChatSubmit,
+  } = useChat({
+    api: "/api/ai/chat",
+    maxSteps: 3,
+  });
 
   const [url, setUrl] = useState("");
   const [markdown, setMarkdown] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleURLSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const resp = await client.api.ai.bookmark.$post({
       json: {
@@ -23,6 +29,11 @@ export default function DashboardPage() {
     });
 
     const data = await resp.json();
+    if (resp.ok) {
+      toast.success("Embeddings for bookmark created");
+    } else {
+      toast.error("Failed to create embeddings for bookmark");
+    }
     setMarkdown(data.markdown);
   };
 
@@ -31,14 +42,44 @@ export default function DashboardPage() {
       <h1>Dashboard</h1>
       <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
         <div className="text-sm text-zinc-500">url: {url}</div>
-        <div className="whitespace-pre-wrap">{markdown}</div>
+        <ScrollArea className="h-52">
+          <div className="whitespace-pre-wrap">{markdown}</div>
+        </ScrollArea>
 
-        <form onSubmit={handleSubmit}>
-          <input
-            className="fixed dark:bg-zinc-900 bottom-0 w-full max-w-md p-2 mb-8 border border-zinc-300 dark:border-zinc-800 rounded shadow-xl"
+        <ScrollArea className="h-96">
+          {messages.map((m) => (
+            <div key={m.id} className="whitespace-pre-wrap">
+              <div>
+                <div className="font-bold">{m.role}</div>
+                <p>
+                  {m.content.length > 0 ? (
+                    m.content
+                  ) : (
+                    <span className="italic font-light">
+                      {"calling tool: " + m?.toolInvocations?.[0].toolName}
+                    </span>
+                  )}
+                </p>
+              </div>
+            </div>
+          ))}
+        </ScrollArea>
+
+        <form onSubmit={handleURLSubmit}>
+          <label className="text-sm text-zinc-500">URL</label>
+          <Input
             value={url}
             placeholder="Say something..."
             onChange={(e) => setUrl(e.target.value)}
+          />
+        </form>
+
+        <form onSubmit={handleChatSubmit}>
+          <label className="text-sm text-zinc-500">Prompt</label>
+          <Input
+            value={input}
+            placeholder="Say something..."
+            onChange={(e) => setInput(e.target.value)}
           />
         </form>
       </div>

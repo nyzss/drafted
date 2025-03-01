@@ -1,12 +1,19 @@
 import { Hono } from "hono";
-import { streamText } from "ai";
+import { streamText, tool } from "ai";
 import { CoreMessage } from "ai";
-import { generateEmbeddings, openai } from "@/lib/llm";
+import {
+  findRelevantContent,
+  generateEmbeddings,
+  openai,
+  getMarkdownChunks,
+  getMetadataChunks,
+} from "@/lib/llm";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { parseUrlToMarkdown } from "@/lib/md";
 import { db } from "@/db";
 import { embeddingsTable } from "@/db/schema";
+import { getOpenGraphData } from "@/utils";
 
 const aiRouter = new Hono()
   .post("/chat", async (c) => {
@@ -15,29 +22,27 @@ const aiRouter = new Hono()
     const resp = streamText({
       model: openai("gpt-4o-mini"),
       system: `
-        You are a helpful assistant that can help users with their questions.
-        End all your responses with this emoji: 🔖
-      `,
-      messages,
-    });
-
-    return resp.toDataStreamResponse();
-  })
-  .post("/completion", async (c) => {
-    const { prompt }: { prompt: string } = await c.req.json();
-    const resp = streamText({
-      model: openai("gpt-4o-mini"),
-      system: `
-            You are a auto-completion system that completes the user's prompt.
-            You will usually complete the prompt with a few words, but sometimes you will complete the prompt with a few sentences.
-            Do not add any other text than the completion.
-            Follow the user's prompt closely.
+            You are a helpful assistant. Check your knowledge base before answering any questions.
+            Only respond to questions using information from tool calls.
+            The user might ask about their bookmarks, if so, use the getInformation tool to get the information.
+            if no relevant information is found in the tool calls, respond, "Sorry, I don't know."
             `,
-      prompt,
+      messages,
+      tools: {
+        getInformation: tool({
+          description: `get information from your knowledge base and bookmarks history to answer questions.
+          `,
+          parameters: z.object({
+            question: z.string().describe("the users question"),
+          }),
+          execute: async ({ question }) => findRelevantContent(question),
+        }),
+      },
     });
 
     return resp.toDataStreamResponse();
   })
+
   .post(
     "/bookmark",
     zValidator(
@@ -49,9 +54,18 @@ const aiRouter = new Hono()
     async (c) => {
       const { url }: { url: string } = await c.req.json();
 
-      const markdown = await parseUrlToMarkdown(url);
+      const metadata = await getOpenGraphData(url);
 
-      const embeddings = await generateEmbeddings(markdown);
+      const metadataChunks = await getMetadataChunks(
+        JSON.stringify(metadata.result),
+      );
+
+      const markdown = await parseUrlToMarkdown(url);
+      const mdChunks = await getMarkdownChunks(markdown);
+
+      const chunks = [...mdChunks, ...metadataChunks];
+
+      const embeddings = await generateEmbeddings(chunks);
 
       await db.insert(embeddingsTable).values(
         embeddings.map((embedding) => ({
@@ -64,6 +78,31 @@ const aiRouter = new Hono()
         markdown,
       });
     },
-  );
+  )
+  .post("/completion", async (c) => {
+    const { prompt }: { prompt: string } = await c.req.json();
+    const resp = streamText({
+      model: openai("gpt-4o-mini"),
+      system: `
+            You are a helpful assistant. Check your knowledge base before answering any questions.
+            Only respond to questions using information from tool calls.
+            The user might ask about their bookmarks, if so, use the getInformation tool to get the information.
+            if no relevant information is found in the tool calls, respond, "Sorry, I don't know."
+            `,
+      prompt,
+      tools: {
+        getInformation: tool({
+          description: `get information from your knowledge base and bookmarks history to answer questions.
+          `,
+          parameters: z.object({
+            question: z.string().describe("the users question"),
+          }),
+          execute: async ({ question }) => findRelevantContent(question),
+        }),
+      },
+    });
+
+    return resp.toDataStreamResponse();
+  });
 
 export default aiRouter;
