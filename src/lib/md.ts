@@ -1,6 +1,5 @@
 import { Readability } from "@mozilla/readability";
 import { JSDOM } from "jsdom";
-
 import TurndownService from "turndown";
 
 export const parseUrlToMarkdown = async (url: string) => {

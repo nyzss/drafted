@@ -5,11 +5,31 @@ import {
   uuid,
   varchar,
   boolean,
+  index,
+  vector,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { usersTable } from "./auth-schema";
 
 export * from "./auth-schema";
+
+export const embeddingsTable = pgTable(
+  "embeddings",
+  {
+    id: uuid().defaultRandom().primaryKey(),
+    bookmarkId: uuid()
+      .references(() => bookmarksTable.id)
+      .notNull(),
+    content: text("content").notNull(),
+    embedding: vector("embedding", { dimensions: 1536 }).notNull(),
+  },
+  (table) => ({
+    embeddingIndex: index("embeddingIndex").using(
+      "hnsw",
+      table.embedding.op("vector_cosine_ops"),
+    ),
+  }),
+);
 
 export const bookmarksTable = pgTable("bookmarks", {
   id: uuid().defaultRandom().primaryKey(),
